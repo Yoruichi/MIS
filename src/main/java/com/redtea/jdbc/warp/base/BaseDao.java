@@ -1,7 +1,6 @@
 package com.redtea.jdbc.warp.base;
 
 import com.google.common.collect.Lists;
-import com.mysql.jdbc.PreparedStatement;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +12,9 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 
 public abstract class BaseDao<T extends BasePo> {
@@ -65,7 +66,14 @@ public abstract class BaseDao<T extends BasePo> {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
             logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
             KeyHolder keyHolder = new GeneratedKeyHolder();
-            getTemplate().update(ind.sql, ind.args, keyHolder);
+            //getTemplate().update(ind.sql, ind.args, keyHolder);
+            getTemplate().update(con -> {
+                PreparedStatement ps = con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
+                for (int i = 0; i < ind.args.length ; i++) {
+                    ps.setObject((i+1), ind.args[i]);
+                }
+                return ps;
+            }, keyHolder);
             return keyHolder.getKey().intValue();
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
