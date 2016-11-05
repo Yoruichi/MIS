@@ -21,7 +21,7 @@ public abstract class BaseDao<T extends BasePo> {
     protected abstract Class<T> getEntityClass();
 
     @Autowired
-    protected JdbcTemplate template;
+    private JdbcTemplate template;
 
     protected final ResultSetExtractor<List<T>> rseList = rs -> {
         List<T> l = Lists.newLinkedList();
@@ -47,7 +47,7 @@ public abstract class BaseDao<T extends BasePo> {
         return l;
     };
 
-    public void insertOne(BasePo o) throws Exception {
+    public void insertOne(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
             logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
@@ -58,7 +58,7 @@ public abstract class BaseDao<T extends BasePo> {
         }
     }
 
-    public int insertOneGetId(BasePo o) throws Exception {
+    public int insertOneGetId(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
             logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
@@ -99,7 +99,7 @@ public abstract class BaseDao<T extends BasePo> {
         }
     }
 
-    public List<T> selectMany(final T o) throws Exception {
+    public List<T> selectMany(T o) throws Exception {
         List<T> list = Lists.newArrayList();
         try {
             SelectNeed sed = SelectNeed.getSelectManyNeed(o);
@@ -113,7 +113,37 @@ public abstract class BaseDao<T extends BasePo> {
         return list;
     }
 
-    public T select(final T o) throws Exception {
+    public T selectHeadOfMany(T o) throws Exception {
+        List<T> list = Lists.newArrayList();
+        try {
+            SelectNeed sed = SelectNeed.getSelectManyNeed(o);
+            list = getTemplate().query(sed.sql, sed.args, rseList);
+            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
+                    o, list);
+            if (list.size() > 0) return list.get(0);
+        } catch (Exception e) {
+            logger.error("Error when select many of class{}.Caused by {}", o, e);
+            throw e;
+        }
+        return null;
+    }
+
+    public T selectOneOfMany(T o, int index) throws Exception {
+        List<T> list = Lists.newArrayList();
+        try {
+            SelectNeed sed = SelectNeed.getSelectManyNeed(o);
+            list = getTemplate().query(sed.sql, sed.args, rseList);
+            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
+                    o, list);
+            if (list.size() > index) return list.get(index);
+        } catch (Exception e) {
+            logger.error("Error when select many of class{}.Caused by {}", o, e);
+            throw e;
+        }
+        return null;
+    }
+
+    public T select(T o) throws Exception {
         T t = null;
         try {
             SelectNeed sed = SelectNeed.getSelectOneNeed(o);
@@ -131,10 +161,6 @@ public abstract class BaseDao<T extends BasePo> {
 
     public JdbcTemplate getTemplate() {
         return template;
-    }
-
-    public void setTemplate(JdbcTemplate template) {
-        this.template = template;
     }
 
 }

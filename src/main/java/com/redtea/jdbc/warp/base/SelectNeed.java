@@ -3,7 +3,6 @@ package com.redtea.jdbc.warp.base;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,17 +25,17 @@ public class SelectNeed {
         for (int i = 0; i < fs.length; i++) {
             includeFields[i] = fs[i].getName();
         }
-        return getSelectOneNeed(o, includeFields);
+        return getSelectOneNeed(o, includeFields, o.isForUpdate());
     }
 
-    public static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields) throws Exception {
+    public static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
         for (int i = 0; i < includeFields.length; i++)
             inc.add(clazz.getDeclaredField(includeFields[i]));
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
         o.ready();
-        return new SelectNeed(SqlBuilder.getSelectOneSql(clazz, o.getConditionFieldList(), inc),
+        return new SelectNeed(SqlBuilder.getSelectOneSql(clazz, o.getConditionFieldList(), inc, isForUpdate),
                 getSelectArgs(o));
     }
 
@@ -61,11 +60,11 @@ public class SelectNeed {
             Field orderByField = clazz.getDeclaredField(orderField);
             orderByFieldList.add(orderByField);
         }
-        return getSelectManyNeed(o, includeFields, orderByFieldList, o.isAsc(), o.getLimit(), o.getIndex());
+        return getSelectManyNeed(o, includeFields, orderByFieldList, o.isAsc(), o.getLimit(), o.getIndex(), o.isForUpdate());
     }
 
     public static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields, List<Field> orderByFields,
-                                               boolean asc, int limit, int index) throws Exception {
+                                               boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
         for (int i = 0; i < includeFields.length; i++)
@@ -73,7 +72,8 @@ public class SelectNeed {
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
         o.ready();
         return new SelectNeed(
-                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), inc, orderByFields, asc, limit, index),
+                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), inc, orderByFields, asc, limit, index, isForUpdate),
                 getSelectArgs(o));
+
     }
 }

@@ -15,122 +15,139 @@ public class BasePo implements Serializable {
     private boolean asc;
     private int limit;
     private int index;
+    private boolean forUpdate;
 
-    public void groupBy(String... fields) {
+    public BasePo groupBy(String... fields) {
         getGroupByField().addAll(Arrays.asList(fields));
+        return this;
     }
 
-    public void orderBy(String... fields) {
+    public BasePo orderBy(String... fields) {
         getOrderByField().addAll(Arrays.asList(fields));
+        return this;
     }
 
-    public void gt(String field, Object o) throws Exception {
+    public BasePo gt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
                         .setValue(o));
+        return this;
     }
 
-    public void gt(String field) throws Exception {
+    public BasePo gt(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void gte(String field, Object o) throws Exception {
+    public BasePo gte(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
                         .setValue(o));
+        return this;
     }
 
-    public void gte(String field) throws Exception {
+    public BasePo gte(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void lt(String field, Object o) throws Exception {
+    public BasePo lt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
                         .setValue(o));
+        return this;
     }
 
-    public void lt(String field) throws Exception {
+    public BasePo lt(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void lte(String field, Object o) throws Exception {
+    public BasePo lte(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
                         .setValue(o));
+        return this;
     }
 
-    public void lte(String field) throws Exception {
+    public BasePo lte(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void eq(String field, Object o) throws Exception {
+    public BasePo eq(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
                         .setValue(o));
+        return this;
     }
 
-    public void eq(String field) throws Exception {
+    public BasePo eq(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void ne(String field, Object o) throws Exception {
+    public BasePo ne(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
                         .setValue(o));
+        return this;
     }
 
-    public void ne(String field) throws Exception {
+    public BasePo ne(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
                         .setValue(f.get(this)));
+        return this;
     }
 
-    public void isNull(String field) throws Exception {
+    public BasePo isNull(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.IS_NULL)
                         .setValue(null));
+        return this;
     }
 
-    public void isNotNull(String field) throws Exception {
+    public BasePo isNotNull(String field) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldList()
                 .add(new ConditionField().setFieldName(field).setCondition(CONDITION.IS_NOT_NULL)
                         .setValue(null));
+        return this;
     }
 
-    public void in(String field, Object[] o) throws Exception {
+    public BasePo in(String field, Object[] o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         if (f.getType().equals(String.class)) {
             String[] so = new String[o.length];
@@ -145,9 +162,10 @@ public class BasePo implements Serializable {
                     .add(new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
                             .setValues(o));
         }
+        return this;
     }
 
-    public void notIn(String field, Object[] o) throws Exception {
+    public BasePo notIn(String field, Object[] o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         if (f.getType().equals(String.class)) {
             String[] so = new String[o.length];
@@ -162,54 +180,70 @@ public class BasePo implements Serializable {
                     .add(new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
                             .setValues(o));
         }
+        return this;
     }
 
     public List<ConditionField> getConditionFieldList() {
         return conditionFieldList;
     }
 
-    public void setConditionFieldList(List<ConditionField> conditionFieldList) {
+    public BasePo setConditionFieldList(List<ConditionField> conditionFieldList) {
         this.conditionFieldList = conditionFieldList;
+        return this;
     }
 
     public int getLimit() {
         return limit;
     }
 
-    public void setLimit(int limit) {
+    public BasePo setLimit(int limit) {
         this.limit = limit;
+        return this;
     }
 
     public int getIndex() {
         return index;
     }
 
-    public void setIndex(int index) {
+    public BasePo setIndex(int index) {
         this.index = index;
+        return this;
     }
 
     public boolean isAsc() {
         return asc;
     }
 
-    public void setAsc(boolean asc) {
+    public BasePo setAsc(boolean asc) {
         this.asc = asc;
+        return this;
     }
 
     public List<String> getOrderByField() {
         return orderByField;
     }
 
-    public void setOrderByField(List<String> orderByField) {
+    public BasePo setOrderByField(List<String> orderByField) {
         this.orderByField = orderByField;
+        return this;
     }
 
     public List<String> getGroupByField() {
         return groupByField;
     }
 
-    public void setGroupByField(List<String> groupByField) {
+    public BasePo setGroupByField(List<String> groupByField) {
         this.groupByField = groupByField;
+        return this;
+    }
+
+    public boolean isForUpdate() {
+        return forUpdate;
+    }
+
+    public BasePo setForUpdate(boolean forUpdate) {
+        this.forUpdate = forUpdate;
+        return this;
     }
 
     public enum CONDITION {

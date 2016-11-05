@@ -12,8 +12,6 @@ import java.util.stream.Collectors;
 
 public class SqlBuilder {
 
-    private static final Logger logger = LoggerFactory.getLogger(SqlBuilder.class);
-
     private static final List<Character> upper =
             ImmutableList.of('A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N',
                     'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z');
@@ -26,13 +24,11 @@ public class SqlBuilder {
         String tableName = getDbName(c.getSimpleName());
         sb.append("insert into `").append(tableName).append("` (");
         Field[] fields = c.getDeclaredFields();
-        Arrays.stream(fields).filter(includeFields::contains).forEach(f -> {
-            sb.append("`").append(getDbName(f.getName())).append("`,");
-        });
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("`,"));
         sb.replace(sb.length() - 1, sb.length(), ") values (");
-        Arrays.stream(fields).filter(includeFields::contains).forEach(f -> {
-            sb.append("?").append(",");
-        });
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("?").append(","));
         sb.replace(sb.length() - 1, sb.length(), ")");
         return sb.toString();
     }
@@ -54,34 +50,33 @@ public class SqlBuilder {
         return sb.toString();
     }
 
-    public static String getInsertOrUpdateSql(Class<? extends BasePo> c, List<Field> includeFields) {
+    public static String getInsertOrUpdateSql(Class<? extends BasePo> c,
+            List<Field> includeFields) {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());
         sb.append("insert into `").append(tableName).append("` (");
         Field[] fields = c.getDeclaredFields();
-        Arrays.stream(fields).filter(includeFields::contains).forEach(f -> {
-            sb.append("`").append(getDbName(f.getName())).append("`,");
-        });
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("`,"));
         sb.replace(sb.length() - 1, sb.length(), ") values (");
-        Arrays.stream(fields).filter(includeFields::contains).forEach(f -> {
-            sb.append("?").append(",");
-        });
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("?").append(","));
         sb.replace(sb.length() - 1, sb.length(), ") on duplicate key update");
-        Arrays.stream(fields).filter(includeFields::contains).forEach(f -> {
-            sb.append(" `").append(getDbName(f.getName())).append("` = ? ,");
-        });
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append(" `").append(getDbName(f.getName())).append("` = ? ,"));
         sb.replace(sb.length() - 1, sb.length(), "");
         return sb.toString();
     }
 
     public static String getSelectOneSql(Class<? extends BasePo> c,
-                                         List<ConditionField> conditionFields, List<Field> includeFields) {
-        return getSelectSql(c, conditionFields, includeFields, null, false, 0, 0);
+            List<ConditionField> conditionFields, List<Field> includeFields, boolean isForUpdate) {
+        return getSelectSql(c, conditionFields, includeFields, null, false, 0, 0, isForUpdate);
     }
 
     public static String getSelectSql(Class<? extends BasePo> c,
-                                      List<ConditionField> conditionFields, List<Field> includeFields, List<Field> orderFields,
-                                      boolean asc, int limit, int index) {
+            List<ConditionField> conditionFields, List<Field> includeFields,
+            List<Field> orderFields,
+            boolean asc, int limit, int index, boolean isForUpdate) {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
         for (Field field : includeFields) {
@@ -125,6 +120,9 @@ public class SqlBuilder {
             if (index > 0) {
                 sb.append(" offset ").append(index);
             }
+        }
+        if (isForUpdate) {
+            sb.append(" for update");
         }
         return sb.toString();
     }
