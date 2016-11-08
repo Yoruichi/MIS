@@ -5,11 +5,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.redtea</groupId>
-    <artifactId>jdbc-warp</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>MIS</artifactId>
+    <version>0.0.1</version>
     <packaging>jar</packaging>
 
-    <name>jdbc-warp</name>
+    <name>MIS</name>
     <description>Demo project for Spring Boot</description>
 
     <parent>
