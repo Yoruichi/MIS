@@ -1,7 +1,7 @@
-package com.redtea.jdbc.warp.test;
+package me.yoruichi.mis.test;
 
-import com.redtea.jdbc.warp.dao.FooDao;
-import com.redtea.jdbc.warp.po.Foo;
+import me.yoruichi.mis.dao.FooDao;
+import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;

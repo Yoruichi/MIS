@@ -1,7 +1,7 @@
-package com.redtea.jdbc.warp.dao;
+package me.yoruichi.mis.dao;
 
-import com.redtea.jdbc.warp.base.BaseDao;
-import com.redtea.jdbc.warp.po.Foo;
+import me.yoruichi.mis.BaseDao;
+import me.yoruichi.mis.po.Foo;
 import org.springframework.stereotype.Repository;
 
 /**

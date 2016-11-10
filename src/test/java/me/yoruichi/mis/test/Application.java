@@ -1,4 +1,4 @@
-package com.redtea.jdbc.warp.test;
+package me.yoruichi.mis.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

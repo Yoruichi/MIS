@@ -1,6 +1,6 @@
-package com.redtea.jdbc.warp.po;
+package me.yoruichi.mis.po;
 
-import com.redtea.jdbc.warp.base.BasePo;
+import me.yoruichi.mis.BasePo;
 
 /**
  * Created by yoruichi on 16/10/26.
