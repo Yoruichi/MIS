@@ -1,6 +1,8 @@
 package me.yoruichi.mis;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
+import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -9,12 +11,29 @@ import java.util.List;
 
 public class BasePo implements Serializable {
 
+    @JsonIgnoreProperties(value={
+            "conditionFieldList",
+            "groupByField",
+            "orderByField",
+            "asc",
+            "limit",
+            "index",
+            "forUpdate",
+    })
+
+    @ApiModelProperty(hidden = true)
     private List<ConditionField> conditionFieldList = Lists.newLinkedList();
+    @ApiModelProperty(hidden = true)
     private List<String> groupByField = Lists.newLinkedList();
+    @ApiModelProperty(hidden = true)
     private List<String> orderByField = Lists.newLinkedList();
+    @ApiModelProperty(hidden = true)
     private boolean asc;
+    @ApiModelProperty(hidden = true)
     private int limit;
+    @ApiModelProperty(hidden = true)
     private int index;
+    @ApiModelProperty(hidden = true)
     private boolean forUpdate;
 
     public BasePo groupBy(String... fields) {
