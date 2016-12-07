@@ -11,7 +11,7 @@ import java.util.List;
 
 public class BasePo implements Serializable {
 
-    @JsonIgnoreProperties(value={
+    @JsonIgnoreProperties(value = {
             "conditionFieldList",
             "groupByField",
             "orderByField",
@@ -285,14 +285,12 @@ public class BasePo implements Serializable {
 
     public void ready() throws Exception {
         Class<? extends BasePo> clazz = this.getClass();
-        if (this.getConditionFieldList().size() == 0) {
-            Field[] fs = clazz.getDeclaredFields();
-            for (int i = 0; i < fs.length; i++) {
-                fs[i].setAccessible(true);
-                Object v = fs[i].get(this);
-                if (v != null) {
-                    this.eq(fs[i].getName());
-                }
+        Field[] fs = clazz.getDeclaredFields();
+        for (int i = 0; i < fs.length; i++) {
+            fs[i].setAccessible(true);
+            Object v = fs[i].get(this);
+            if (v != null) {
+                this.eq(fs[i].getName());
             }
         }
     }
