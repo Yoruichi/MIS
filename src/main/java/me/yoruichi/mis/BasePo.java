@@ -17,7 +17,7 @@ public class BasePo implements Serializable {
 
     @JsonIgnoreProperties(value = {
             "conditionFieldList",
-            "groupByField",
+//            "groupByField",
             "orderByField",
             "asc",
             "limit",
@@ -27,8 +27,8 @@ public class BasePo implements Serializable {
 
     @ApiModelProperty(hidden = true)
     private Map<String, ConditionField> conditionFieldMap = Maps.newHashMap();
-    @ApiModelProperty(hidden = true)
-    private Set<String> groupByField = Sets.newLinkedHashSet();
+//    @ApiModelProperty(hidden = true)
+//    private Set<String> groupByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
     private Set<String> orderByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
@@ -40,10 +40,10 @@ public class BasePo implements Serializable {
     @ApiModelProperty(hidden = true)
     private boolean forUpdate;
 
-    public BasePo groupBy(String... fields) {
-        getGroupByField().addAll(Arrays.asList(fields));
-        return this;
-    }
+//    public BasePo groupBy(String... fields) {
+//        getGroupByField().addAll(Arrays.asList(fields));
+//        return this;
+//    }
 
     public BasePo orderBy(String... fields) {
         getOrderByField().addAll(Arrays.asList(fields));
@@ -252,14 +252,14 @@ public class BasePo implements Serializable {
         return this;
     }
 
-    public Set<String> getGroupByField() {
-        return groupByField;
-    }
-
-    public BasePo setGroupByField(Set<String> groupByField) {
-        this.groupByField = groupByField;
-        return this;
-    }
+//    public Set<String> getGroupByField() {
+//        return groupByField;
+//    }
+//
+//    public BasePo setGroupByField(Set<String> groupByField) {
+//        this.groupByField = groupByField;
+//        return this;
+//    }
 
     public Set<String> getOrderByField() {
         return orderByField;
