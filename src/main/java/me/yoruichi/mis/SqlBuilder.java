@@ -16,6 +16,19 @@ public class SqlBuilder {
             ImmutableList.of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
+    public static String getUpdateSql(Class<? extends BasePo> c, List<Field> includeFields) {
+        StringBuilder sb = new StringBuilder();
+        String tableName = getDbName(c.getSimpleName());
+        sb.append("update `").append(tableName).append("` set (");
+        Field[] fields = c.getDeclaredFields();
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("`,"));
+        sb.replace(sb.length() - 1, sb.length(), ") values (");
+        Arrays.stream(fields).filter(includeFields::contains)
+                .forEach(f -> sb.append("?").append(","));
+        sb.replace(sb.length() - 1, sb.length(), ")");
+        return sb.toString();
+    }
     public static String getInsertSql(Class<? extends BasePo> c, List<Field> includeFields) {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());

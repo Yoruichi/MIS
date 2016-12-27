@@ -47,6 +47,7 @@ public abstract class BaseDao<T extends BasePo> {
         return l;
     };
 
+
     public void insertOne(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
@@ -95,6 +96,17 @@ public abstract class BaseDao<T extends BasePo> {
             getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert or update po class{}.Caused by:{}", o, e);
+            throw e;
+        }
+    }
+
+    public void insertOrUpdateMany(List<T> list) throws Exception {
+        try {
+            InsertOrUpdateNeedMany ind = InsertOrUpdateNeedMany.getInsertOrUpdateNeedMany(list);
+            logger.info("running:{} with args{} based on class{}", ind.sql, ind.args, list);
+            getTemplate().batchUpdate(ind.sql, ind.args);
+        } catch (Exception e) {
+            logger.error("Error when insert or update list of {}.Caused by:{}", list, e);
             throw e;
         }
     }

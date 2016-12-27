@@ -1,5 +1,7 @@
 package me.yoruichi.mis.test;
 
+import com.google.common.collect.Lists;
+import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
@@ -8,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import java.util.List;
 
 /**
  * Created by yoruichi on 16/10/26.
@@ -24,6 +28,7 @@ public class Test {
     @org.junit.Test
     public void test() {
         Foo foo = new Foo();
+        fooDao.getTemplate().update("delete from foo");
         foo.setName("testA");
         try {
             fooDao.insertOne(foo);
@@ -35,14 +40,22 @@ public class Test {
             foo.setName("testB");
             fooDao.insertOrUpdate(foo);
             Foo f = new Foo();
-            f.in("name",new String[]{"testA","testB"});
+            f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
             Foo f1 = new Foo();
             f1.gt("age", 22);
             Assert.assertEquals("testB", fooDao.select(f1).getName());
             Foo f2 = new Foo();
-            f2.in("age", new Integer[]{22,27});
+            f2.in("age", new Integer[] {22, 27});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
+
+            foo = new Foo();
+            foo.setGender(true);
+            List<Foo> fl = fooDao.selectMany(foo);
+            fl.stream().forEach(foo1 -> foo1.setGender(false));
+            fooDao.insertOrUpdateMany(fl);
+            foo.setGender(false);
+            Assert.assertEquals(3, fooDao.selectMany(foo).size());
         } catch (Exception e) {
             e.printStackTrace();
         }
