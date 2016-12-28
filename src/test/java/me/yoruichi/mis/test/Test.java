@@ -1,7 +1,5 @@
 package me.yoruichi.mis.test;
 
-import com.google.common.collect.Lists;
-import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
@@ -38,6 +36,7 @@ public class Test {
             foo.setId(id);
             foo.setAge(27);
             foo.setName("testB");
+            foo.setGender(false);
             fooDao.insertOrUpdate(foo);
             Foo f = new Foo();
             f.in("name", new String[] {"testA", "testB"});
@@ -48,6 +47,7 @@ public class Test {
             Foo f2 = new Foo();
             f2.in("age", new Integer[] {22, 27});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
+            Assert.assertEquals(3, fooDao.selectMany(f.or(f1).or(f2)).size());
 
             foo = new Foo();
             foo.setGender(true);

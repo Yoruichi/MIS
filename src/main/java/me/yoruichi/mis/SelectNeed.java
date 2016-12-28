@@ -28,23 +28,37 @@ public class SelectNeed {
         return getSelectOneNeed(o, includeFields, o.isForUpdate());
     }
 
-    public static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields, boolean isForUpdate) throws Exception {
+    public static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields, boolean isForUpdate)
+            throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
         for (int i = 0; i < includeFields.length; i++)
             inc.add(clazz.getDeclaredField(includeFields[i]));
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
         o.ready();
-        return new SelectNeed(SqlBuilder.getSelectOneSql(clazz, o.getConditionFieldList(), inc, isForUpdate),
+        return new SelectNeed(
+                SqlBuilder
+                        .getSelectOneSql(clazz, o.getConditionFieldList(), o.getOrConditionFields(),
+                                inc, isForUpdate),
                 getSelectArgs(o));
     }
 
     private static Object[] getSelectArgs(BasePo o) {
         List<Object> obs = Lists.newLinkedList();
-        obs.addAll(o.getConditionFieldList().stream().filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
-                && cf.getCondition() != BasePo.CONDITION.NOT_IN
-                && cf.getCondition() != BasePo.CONDITION.IS_NULL
-                && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL).map(ConditionField::getValue).collect(Collectors.toList()));
+        obs.addAll(o.getConditionFieldList().stream()
+                .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
+                        && cf.getCondition() != BasePo.CONDITION.NOT_IN
+                        && cf.getCondition() != BasePo.CONDITION.IS_NULL
+                        && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
+                .map(ConditionField::getValue).collect(Collectors.toList()));
+        o.getOrConditionList().stream().forEach(oo ->
+                obs.addAll(oo.getConditionFieldList().stream()
+                        .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
+                                && cf.getCondition() != BasePo.CONDITION.NOT_IN
+                                && cf.getCondition() != BasePo.CONDITION.IS_NULL
+                                && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
+                        .map(ConditionField::getValue).collect(Collectors.toList()))
+        );
         return obs.toArray();
     }
 
@@ -60,11 +74,13 @@ public class SelectNeed {
             Field orderByField = clazz.getDeclaredField(orderField);
             orderByFieldList.add(orderByField);
         }
-        return getSelectManyNeed(o, includeFields, orderByFieldList, o.isAsc(), o.getLimit(), o.getIndex(), o.isForUpdate());
+        return getSelectManyNeed(o, includeFields, orderByFieldList, o.isAsc(), o.getLimit(),
+                o.getIndex(), o.isForUpdate());
     }
 
-    public static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields, List<Field> orderByFields,
-                                               boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
+    public static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields,
+            List<Field> orderByFields,
+            boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
         for (int i = 0; i < includeFields.length; i++)
@@ -72,7 +88,9 @@ public class SelectNeed {
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
         o.ready();
         return new SelectNeed(
-                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), inc, orderByFields, asc, limit, index, isForUpdate),
+                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), o.getOrConditionFields(),
+                        inc, orderByFields, asc,
+                        limit, index, isForUpdate),
                 getSelectArgs(o));
 
     }

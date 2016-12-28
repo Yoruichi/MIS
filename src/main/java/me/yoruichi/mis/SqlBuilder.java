@@ -79,23 +79,13 @@ public class SqlBuilder {
     }
 
     public static String getSelectOneSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<Field> includeFields, boolean isForUpdate) {
-        return getSelectSql(c, conditionFields, includeFields, null, false, 0, 0, isForUpdate);
+            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields, List<Field> includeFields, boolean isForUpdate) {
+        return getSelectSql(c, conditionFields, orConditionFields, includeFields, null, false, 0, 0, isForUpdate);
     }
 
-    public static String getSelectSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<Field> includeFields,
-            List<Field> orderFields,
-            boolean asc, int limit, int index, boolean isForUpdate) {
+    public static String getConditionSql(Class<? extends BasePo> c, List<ConditionField> conditionFields) {
         StringBuilder sb = new StringBuilder();
-        sb.append("select ");
-        for (Field field : includeFields) {
-            sb.append("`").append(getDbName(field.getName())).append("`,");
-        }
-        sb.replace(sb.length() - 1, sb.length(), " from `").append(getDbName(c.getSimpleName()))
-                .append("`");
         if (conditionFields != null && conditionFields.size() > 0) {
-            sb.append(" where");
             for (ConditionField cf : conditionFields) {
                 sb.append(" `").append(getDbName(cf.getFieldName())).append("` ");
                 switch (cf.getCondition()) {
@@ -116,6 +106,26 @@ public class SqlBuilder {
                 sb.append(" and");
             }
             sb.replace(sb.length() - 3, sb.length(), "");
+        }
+        return sb.toString();
+    }
+
+    public static String getSelectSql(Class<? extends BasePo> c,
+            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields, List<Field> includeFields,
+            List<Field> orderFields,
+            boolean asc, int limit, int index, boolean isForUpdate) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select ");
+        for (Field field : includeFields) {
+            sb.append("`").append(getDbName(field.getName())).append("`,");
+        }
+        sb.replace(sb.length() - 1, sb.length(), " from `").append(getDbName(c.getSimpleName()))
+                .append("`");
+        if (conditionFields != null && conditionFields.size() > 0) {
+            sb.append(" where").append(getConditionSql(c, conditionFields));
+            if (orConditionFields != null && orConditionFields.size() > 0) {
+                orConditionFields.stream().forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
+            }
         }
 
         if (orderFields != null && orderFields.size() > 0) {

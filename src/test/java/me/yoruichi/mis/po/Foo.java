@@ -10,6 +10,7 @@ public class Foo extends BasePo {
     private Integer age;
     private Integer id;
     private Boolean gender;
+    private String email;
 
     @Override
     public String toString() {
@@ -18,6 +19,7 @@ public class Foo extends BasePo {
                 ", age=" + age +
                 ", id=" + id +
                 ", gender=" + gender +
+                ", email=" + email +
                 '}';
     }
 
@@ -51,5 +53,14 @@ public class Foo extends BasePo {
 
     public void setGender(Boolean gender) {
         this.gender = gender;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public Foo setEmail(String email) {
+        this.email = email;
+        return this;
     }
 }

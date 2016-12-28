@@ -1,4 +1,4 @@
-package me.yoruichi.mis;
+package me.yoruichi.mis.test;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
