@@ -48,11 +48,33 @@ public abstract class BaseDao<T extends BasePo> {
     };
 
 
-    public void insertOne(T o) throws Exception {
+    public int updateOne(T o) throws Exception {
+        try {
+            UpdateNeed ind = UpdateNeed.getUpdateNeed(o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
+            return getTemplate().update(ind.sql, ind.args);
+        } catch (Exception e) {
+            logger.error("Error when insert po class{}.Caused by:{}", o, e);
+            throw e;
+        }
+    }
+
+    public int[] updateMany(List<T> list) throws Exception {
+        try {
+            UpdateManyNeed ind = UpdateManyNeed.getUpdateManyNeed(list);
+            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args, list);
+            return getTemplate().batchUpdate(ind.sql, ind.args);
+        } catch (Exception e) {
+            logger.error("Error when insert po list{}.Caused by:{}", list, e);
+            throw e;
+        }
+    }
+
+    public int insertOne(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
             logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
-            getTemplate().update(ind.sql, ind.args);
+            return getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
             throw e;
@@ -78,33 +100,33 @@ public abstract class BaseDao<T extends BasePo> {
         }
     }
 
-    public void insertMany(List<T> list) throws Exception {
+    public int[] insertMany(List<T> list) throws Exception {
         try {
             InsertManyNeed ind = InsertManyNeed.getInsertManyNeed(list);
             logger.info("running:{} with args{} based on list {}", ind.sql, ind.args, list);
-            getTemplate().batchUpdate(ind.sql, ind.args);
+            return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert list of {}.Caused by:", list, e);
             throw e;
         }
     }
 
-    public void insertOrUpdate(T o) throws Exception {
+    public int insertOrUpdate(T o) throws Exception {
         try {
             InsertOrUpdateNeed ind = InsertOrUpdateNeed.getInsertOrUpdateNeed(o);
             logger.info("running:{} with args{} based on class{}", ind.sql, ind.args, o);
-            getTemplate().update(ind.sql, ind.args);
+            return getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert or update po class{}.Caused by:{}", o, e);
             throw e;
         }
     }
 
-    public void insertOrUpdateMany(List<T> list) throws Exception {
+    public int[] insertOrUpdateMany(List<T> list) throws Exception {
         try {
             InsertOrUpdateNeedMany ind = InsertOrUpdateNeedMany.getInsertOrUpdateNeedMany(list);
             logger.info("running:{} with args{} based on class{}", ind.sql, ind.args, list);
-            getTemplate().batchUpdate(ind.sql, ind.args);
+            return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert or update list of {}.Caused by:{}", list, e);
             throw e;

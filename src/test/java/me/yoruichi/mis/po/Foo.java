@@ -27,32 +27,36 @@ public class Foo extends BasePo {
         return name;
     }
 
-    public void setName(String name) {
+    public Foo setName(String name) {
         this.name = name;
+        return this;
     }
 
     public Integer getAge() {
         return age;
     }
 
-    public void setAge(Integer age) {
+    public Foo setAge(Integer age) {
         this.age = age;
+        return this;
     }
 
     public Integer getId() {
         return id;
     }
 
-    public void setId(Integer id) {
+    public Foo setId(Integer id) {
         this.id = id;
+        return this;
     }
 
     public Boolean getGender() {
         return gender;
     }
 
-    public void setGender(Boolean gender) {
+    public Foo setGender(Boolean gender) {
         this.gender = gender;
+        return this;
     }
 
     public String getEmail() {

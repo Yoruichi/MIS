@@ -26,11 +26,11 @@ public class InsertOrUpdateNeed {
         for (int i = 0; i < fs.length; i++) {
             fs[i].setAccessible(true);
             Object v = fs[i].get(o);
-//            if (v != null) {
+            if (v != null) {
                 inc.add(fs[i]);
                 obs.add(v);
                 obss.add(v);
-//            }
+            }
         }
         obs.addAll(obss);
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");

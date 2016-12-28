@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 public class SqlBuilder {
 
@@ -16,19 +17,28 @@ public class SqlBuilder {
             ImmutableList.of('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n',
                     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
-    public static String getUpdateSql(Class<? extends BasePo> c, List<Field> includeFields) {
+    public static String getUpdateSql(Class<? extends BasePo> c,
+            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            Map<Field, Object> updateFieldMap) {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());
-        sb.append("update `").append(tableName).append("` set (");
+        sb.append("update `").append(tableName).append("` set ");
         Field[] fields = c.getDeclaredFields();
-        Arrays.stream(fields).filter(includeFields::contains)
-                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("`,"));
-        sb.replace(sb.length() - 1, sb.length(), ") values (");
-        Arrays.stream(fields).filter(includeFields::contains)
-                .forEach(f -> sb.append("?").append(","));
-        sb.replace(sb.length() - 1, sb.length(), ")");
+
+        Arrays.stream(fields).filter(updateFieldMap::containsKey)
+                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
+                        .append(" ,"));
+        sb.replace(sb.length() - 1, sb.length(), " ");
+        if (conditionFields != null && conditionFields.size() > 0) {
+            sb.append(" where").append(getConditionSql(c, conditionFields));
+            if (orConditionFields != null && orConditionFields.size() > 0) {
+                orConditionFields.stream()
+                        .forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
+            }
+        }
         return sb.toString();
     }
+
     public static String getInsertSql(Class<? extends BasePo> c, List<Field> includeFields) {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());
@@ -79,11 +89,14 @@ public class SqlBuilder {
     }
 
     public static String getSelectOneSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields, List<Field> includeFields, boolean isForUpdate) {
-        return getSelectSql(c, conditionFields, orConditionFields, includeFields, null, false, 0, 0, isForUpdate);
+            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            List<Field> includeFields, boolean isForUpdate) {
+        return getSelectSql(c, conditionFields, orConditionFields, includeFields, null, false, 0, 0,
+                isForUpdate);
     }
 
-    public static String getConditionSql(Class<? extends BasePo> c, List<ConditionField> conditionFields) {
+    public static String getConditionSql(Class<? extends BasePo> c,
+            List<ConditionField> conditionFields) {
         StringBuilder sb = new StringBuilder();
         if (conditionFields != null && conditionFields.size() > 0) {
             for (ConditionField cf : conditionFields) {
@@ -111,7 +124,8 @@ public class SqlBuilder {
     }
 
     public static String getSelectSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields, List<Field> includeFields,
+            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            List<Field> includeFields,
             List<Field> orderFields,
             boolean asc, int limit, int index, boolean isForUpdate) {
         StringBuilder sb = new StringBuilder();
@@ -124,7 +138,8 @@ public class SqlBuilder {
         if (conditionFields != null && conditionFields.size() > 0) {
             sb.append(" where").append(getConditionSql(c, conditionFields));
             if (orConditionFields != null && orConditionFields.size() > 0) {
-                orConditionFields.stream().forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
+                orConditionFields.stream()
+                        .forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
             }
         }
 
@@ -133,7 +148,7 @@ public class SqlBuilder {
             for (Field orderField : orderFields) {
                 sb.append(getDbName(orderField.getName())).append("`,");
             }
-            sb.replace(sb.length() - 1, sb.length(), asc ? "` asc" : " desc");
+            sb.replace(sb.length() - 1, sb.length(), asc ? " asc" : " desc");
         }
         if (limit > 0) {
             sb.append(" limit ").append(limit);

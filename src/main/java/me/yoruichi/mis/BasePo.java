@@ -24,6 +24,7 @@ public class BasePo implements Serializable {
             "index",
             "forUpdate",
             "orConditionList",
+            "updateFieldMap",
     })
 
     @ApiModelProperty(hidden = true)
@@ -40,6 +41,23 @@ public class BasePo implements Serializable {
     private int index;
     @ApiModelProperty(hidden = true)
     private boolean forUpdate;
+    @ApiModelProperty(hidden = true)
+    private Map<Field, Object> updateFieldMap = Maps.newHashMap();
+    @ApiModelProperty(hidden = true)
+    private List<BasePo> orConditionList = Lists.newLinkedList();
+
+    public Map<Field, Object> getUpdateFieldMap() {
+        return updateFieldMap;
+    }
+
+    public <T extends BasePo> T update(String field, Object value)
+            throws NoSuchFieldException, IllegalAccessException {
+        Field f = this.getClass().getDeclaredField(field);
+        if (f != null) {
+            this.updateFieldMap.put(f, value);
+        }
+        return (T) this;
+    }
 
     public List<BasePo> getOrConditionList() {
         return orConditionList;
@@ -52,9 +70,6 @@ public class BasePo implements Serializable {
         }
         return orConditionFields;
     }
-
-    @ApiModelProperty(hidden = true)
-    private List<BasePo> orConditionList = Lists.newLinkedList();
 
     public <T extends BasePo> T or(T other) throws Exception {
         if (!other.getClass().getName().equals(this.getClass().getName())) {

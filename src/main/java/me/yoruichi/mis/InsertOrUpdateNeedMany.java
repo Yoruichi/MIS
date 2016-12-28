@@ -17,7 +17,8 @@ public class InsertOrUpdateNeedMany {
         this.args = args;
     }
 
-    public static InsertOrUpdateNeedMany getInsertOrUpdateNeedMany(List<? extends BasePo> os) throws Exception {
+    public static InsertOrUpdateNeedMany getInsertOrUpdateNeedMany(List<? extends BasePo> os)
+            throws Exception {
         List<Object[]> args = Lists.newLinkedList();
         List<Field> inc = Lists.newLinkedList();
         Class<? extends BasePo> clazz = os.get(0).getClass();
@@ -35,17 +36,15 @@ public class InsertOrUpdateNeedMany {
         for (BasePo o : os) {
             List<Object> obs = Lists.newLinkedList();
             List<Object> obss = Lists.newLinkedList();
-            for (int i = 0; i < fs.length; i++) {
-                fs[i].setAccessible(true);
-                Object v = fs[i].get(o);
+            for (Field f : inc) {
+                f.setAccessible(true);
+                Object v = f.get(o);
                 if (v != null) {
-                    inc.add(fs[i]);
                     obs.add(v);
                     obss.add(v);
                 }
             }
             obs.addAll(obss);
-            if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
             args.add(obs.toArray());
         }
         return new InsertOrUpdateNeedMany(SqlBuilder.getInsertOrUpdateSql(clazz, inc), args);
