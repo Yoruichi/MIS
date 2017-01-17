@@ -92,8 +92,9 @@ public class BasePo implements Serializable {
     public <T extends BasePo> T gt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.GT),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -101,16 +102,18 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.GT),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.GT)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
     public <T extends BasePo> T gte(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.GTE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -118,16 +121,18 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.GTE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.GTE)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
     public <T extends BasePo> T lt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.LT),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -135,16 +140,18 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.LT),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.LT)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
     public <T extends BasePo> T lte(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.LTE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -152,16 +159,18 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.LTE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.LTE)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
     public <T extends BasePo> T eq(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.EQ),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -169,16 +178,18 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.EQ),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.EQ)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
     public <T extends BasePo> T ne(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
-                        .setValue(o));
+                .put(this.getConditionFieldKey(field, CONDITION.NE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
+                                .setValue(o));
         return (T) this;
     }
 
@@ -186,8 +197,9 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
-                        .setValue(f.get(this)));
+                .put(this.getConditionFieldKey(field, CONDITION.NE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.NE)
+                                .setValue(f.get(this)));
         return (T) this;
     }
 
@@ -195,8 +207,9 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.IS_NULL)
-                        .setValue(null));
+                .put(this.getConditionFieldKey(field, CONDITION.IS_NULL),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.IS_NULL)
+                                .setValue(null));
         return (T) this;
     }
 
@@ -204,7 +217,7 @@ public class BasePo implements Serializable {
         Field f = this.getClass().getDeclaredField(field);
         f.setAccessible(true);
         getConditionFieldMap()
-                .put(field,
+                .put(this.getConditionFieldKey(field, CONDITION.IS_NOT_NULL),
                         new ConditionField().setFieldName(field).setCondition(CONDITION.IS_NOT_NULL)
                                 .setValue(null));
         return (T) this;
@@ -218,12 +231,14 @@ public class BasePo implements Serializable {
                 so[i] = "'" + o[i].toString() + "'";
             }
             getConditionFieldMap()
-                    .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                            .setValues(so));
+                    .put(this.getConditionFieldKey(field, CONDITION.IN),
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+                                    .setValues(so));
         } else {
             getConditionFieldMap()
-                    .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                            .setValues(o));
+                    .put(this.getConditionFieldKey(field, CONDITION.IN),
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+                                    .setValues(o));
         }
         return (T) this;
     }
@@ -236,11 +251,12 @@ public class BasePo implements Serializable {
                 so[i] = "'" + o[i].toString() + "'";
             }
             getConditionFieldMap()
-                    .put(field, new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                            .setValues(so));
+                    .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+                                    .setValues(so));
         } else {
             getConditionFieldMap()
-                    .put(field,
+                    .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
                             new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
                                     .setValues(o));
         }
@@ -354,5 +370,9 @@ public class BasePo implements Serializable {
             }
         }
         return (T) this;
+    }
+
+    private String getConditionFieldKey(String field, CONDITION condition) {
+        return field + ":" + condition.getSign();
     }
 }
