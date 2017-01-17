@@ -49,6 +49,9 @@ public class Test {
             f2.in("age", new Integer[] {22, 27});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
             Assert.assertEquals(3, fooDao.selectMany(f.or(f1).or(f2)).size());
+            Foo f3 = new Foo();
+            f3.gte("age", 22).lt("age", 30);
+            Assert.assertEquals(3, fooDao.selectMany(f3).size());
             f1.update("email", "whatever@google.com");
             fooDao.updateOne(f1);
             f.update("gender", true);
