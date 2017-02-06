@@ -46,6 +46,7 @@ public class UpdateManyNeed {
         if (o.getUpdateFieldMap().size() == 0) {
             throw new Exception("Object has no update value,please check.");
         }
+        o.ready();
         return new UpdateManyNeed(SqlBuilder
                 .getUpdateSql(o.getClass(), o.getConditionFieldList(), o.getOrConditionFields(),
                         o.getUpdateFieldMap()), getUpdateArgs(list));
