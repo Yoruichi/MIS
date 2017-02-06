@@ -28,7 +28,8 @@ public class BasePo implements Serializable {
     })
 
     @ApiModelProperty(hidden = true)
-    private Map<String, ConditionField> conditionFieldMap = Maps.newHashMap();
+//    private Map<String, ConditionField> conditionFieldMap = Maps.newHashMap();
+    private Map<String, ConditionField> conditionFieldMap = Maps.newLinkedHashMap();
     //    @ApiModelProperty(hidden = true)
 //    private Set<String> groupByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
@@ -42,7 +43,7 @@ public class BasePo implements Serializable {
     @ApiModelProperty(hidden = true)
     private boolean forUpdate;
     @ApiModelProperty(hidden = true)
-    private Map<Field, Object> updateFieldMap = Maps.newHashMap();
+    private Map<Field, Object> updateFieldMap = Maps.newLinkedHashMap();
     @ApiModelProperty(hidden = true)
     private List<BasePo> orConditionList = Lists.newLinkedList();
 
