@@ -23,11 +23,13 @@ public class SqlBuilder {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());
         sb.append("update `").append(tableName).append("` set ");
-        Field[] fields = c.getDeclaredFields();
-
-        Arrays.stream(fields).filter(updateFieldMap::containsKey)
-                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
-                        .append(" ,"));
+//        Field[] fields = c.getDeclaredFields();
+//
+//        Arrays.stream(fields).filter(updateFieldMap::containsKey)
+//                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
+//                        .append(" ,"));
+        updateFieldMap.keySet().stream().forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
+                .append(" ,"));
         sb.replace(sb.length() - 1, sb.length(), " ");
         if (conditionFields != null && conditionFields.size() > 0) {
             sb.append(" where").append(getConditionSql(c, conditionFields));
