@@ -64,6 +64,8 @@ public class Test {
             fooDao.insertOrUpdateMany(fl);
             foo.setGender(false);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
+            List<Foo> fll = fooDao.selectMany(new Foo().like("email", "%@google.com"));
+            Assert.assertEquals(1, fll.size());
         } catch (Exception e) {
             e.printStackTrace();
         }

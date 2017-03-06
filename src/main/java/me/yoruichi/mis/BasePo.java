@@ -90,6 +90,14 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
+    public <T extends BasePo> T like(String field, String o) throws Exception {
+        Field f = this.getClass().getDeclaredField(field);
+        getConditionFieldMap()
+                .put(this.getConditionFieldKey(field, CONDITION.LIKE),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.LIKE)
+                                .setValue(o));
+        return (T) this;
+    }
     public <T extends BasePo> T gt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
@@ -344,7 +352,7 @@ public class BasePo implements Serializable {
 
     public enum CONDITION {
         GT(">"), EQ("="), LT("<"), GTE(">="), LTE("<="), IN("in"), IS_NULL("is null"), IS_NOT_NULL(
-                "is not null"), NE("<>"), NOT_IN("not in");
+                "is not null"), NE("<>"), NOT_IN("not in"), LIKE("like");
         private String sign;
 
         CONDITION(String sign) {
