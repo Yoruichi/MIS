@@ -1,5 +1,6 @@
 package me.yoruichi.mis;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
@@ -16,6 +17,17 @@ public class SelectNeed {
     public SelectNeed(String sql, Object[] args) {
         this.sql = sql;
         this.args = args;
+    }
+
+    @Override
+    public String toString() {
+        String key = sql;
+        for (int i = 0; i < args.length; i++) {
+            if (key.contains("?")) {
+                key = key.replaceFirst("\\?", args[i].toString());
+            }
+        }
+        return key;
     }
 
     public static SelectNeed getSelectOneNeed(BasePo o) throws Exception {

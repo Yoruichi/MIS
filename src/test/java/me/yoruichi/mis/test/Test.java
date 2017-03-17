@@ -52,6 +52,10 @@ public class Test {
             Foo f3 = new Foo();
             f3.gte("age", 22).lt("age", 30);
             Assert.assertEquals(3, fooDao.selectMany(f3).size());
+            Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
+            Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
+            fooDao.flushCache();
+            Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
             f1.update("email", "whatever@google.com");
             fooDao.updateOne(f1);
             f.update("gender", true);
@@ -60,7 +64,6 @@ public class Test {
             foo.setGender(true).orderBy("id").setAsc();
             List<Foo> fl = fooDao.selectMany(foo);
             fl.stream().forEach(foo1 -> foo1.setGender(false));
-            System.out.println(fl.get(0).getEmail());
             fooDao.insertOrUpdateMany(fl);
             foo.setGender(false);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());

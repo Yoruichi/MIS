@@ -1,5 +1,8 @@
 package me.yoruichi.mis;
 
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.Weigher;
 import com.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,12 +16,21 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public abstract class BaseDao<T extends BasePo> {
 
     protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
     protected abstract Class<T> getEntityClass();
+
+    protected Cache<String, T> selectOneCache =
+            CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(15, TimeUnit.MINUTES)
+                    .build();
+    protected Cache<String, List<T>> selectManyCache =
+            CacheBuilder.newBuilder().maximumWeight(2048).weigher(
+                    (Weigher<String, List<T>>) (key, value) -> value.size())
+                    .expireAfterWrite(15, TimeUnit.MINUTES).build();
 
     @Autowired
     private JdbcTemplate template;
@@ -47,6 +59,10 @@ public abstract class BaseDao<T extends BasePo> {
         return l;
     };
 
+    public void flushCache() {
+        selectOneCache.invalidateAll();
+        selectManyCache.invalidateAll();
+    }
 
     public int updateOne(T o) throws Exception {
         try {
@@ -87,9 +103,10 @@ public abstract class BaseDao<T extends BasePo> {
             logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
             KeyHolder keyHolder = new GeneratedKeyHolder();
             getTemplate().update(con -> {
-                PreparedStatement ps = con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
-                for (int i = 0; i < ind.args.length ; i++) {
-                    ps.setObject((i+1), ind.args[i]);
+                PreparedStatement ps =
+                        con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
+                for (int i = 0; i < ind.args.length; i++) {
+                    ps.setObject((i + 1), ind.args[i]);
                 }
                 return ps;
             }, keyHolder);
@@ -137,9 +154,15 @@ public abstract class BaseDao<T extends BasePo> {
         List<T> list = Lists.newArrayList();
         try {
             SelectNeed sed = SelectNeed.getSelectManyNeed(o);
-            list = getTemplate().query(sed.sql, sed.args, rseList);
-            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
-                    o, list);
+            if (o.isUseCache()) {
+                list = selectManyCache
+                        .get(sed.toString(), () -> getTemplate().query(sed.sql, sed.args, rseList));
+                logger.info("get result {} from cache with SQL {}", list, sed);
+            } else {
+                list = getTemplate().query(sed.sql, sed.args, rseList);
+                logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
+                        sed.args, o, list);
+            }
         } catch (Exception e) {
             logger.error("Error when select many of class{}.Caused by {}", o, e);
             throw e;
@@ -148,32 +171,14 @@ public abstract class BaseDao<T extends BasePo> {
     }
 
     public T selectHeadOfMany(T o) throws Exception {
-        List<T> list = Lists.newArrayList();
-        try {
-            SelectNeed sed = SelectNeed.getSelectManyNeed(o);
-            list = getTemplate().query(sed.sql, sed.args, rseList);
-            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
-                    o, list);
-            if (list.size() > 0) return list.get(0);
-        } catch (Exception e) {
-            logger.error("Error when select many of class{}.Caused by {}", o, e);
-            throw e;
-        }
+        List<T> list = this.selectMany(o);
+        if (list.size() > 0) return list.get(0);
         return null;
     }
 
     public T selectOneOfMany(T o, int index) throws Exception {
-        List<T> list = Lists.newArrayList();
-        try {
-            SelectNeed sed = SelectNeed.getSelectManyNeed(o);
-            list = getTemplate().query(sed.sql, sed.args, rseList);
-            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
-                    o, list);
-            if (list.size() > index) return list.get(index);
-        } catch (Exception e) {
-            logger.error("Error when select many of class{}.Caused by {}", o, e);
-            throw e;
-        }
+        List<T> list = this.selectMany(o);
+        if (list.size() > index) return list.get(index);
         return null;
     }
 
@@ -181,11 +186,23 @@ public abstract class BaseDao<T extends BasePo> {
         T t = null;
         try {
             SelectNeed sed = SelectNeed.getSelectOneNeed(o);
-            List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
-            if (l.size() > 0)
-                t = l.get(0);
-            logger.info("running:{} with args{} based on class{} got result{}", sed.sql, sed.args,
-                    o, t);
+            if (o.isUseCache()) {
+                t = selectOneCache.get(sed.toString(), () -> {
+                    List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
+                    if (l.size() > 0)
+                        return l.get(0);
+                    else
+                        return null;
+                });
+                logger.info("get resule {} from cache with key {}", t, sed);
+            } else {
+                List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
+                if (l.size() > 0)
+                    t = l.get(0);
+                logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
+                        sed.args,
+                        o, t);
+            }
         } catch (Exception e) {
             logger.error("Error when select one of class{}.Caused by {}", o, e);
             throw e;

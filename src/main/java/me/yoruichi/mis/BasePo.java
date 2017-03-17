@@ -25,6 +25,7 @@ public class BasePo implements Serializable {
             "forUpdate",
             "orConditionList",
             "updateFieldMap",
+            "useCache",
     })
 
     @ApiModelProperty(hidden = true)
@@ -46,6 +47,8 @@ public class BasePo implements Serializable {
     private Map<Field, Object> updateFieldMap = Maps.newLinkedHashMap();
     @ApiModelProperty(hidden = true)
     private List<BasePo> orConditionList = Lists.newLinkedList();
+    @ApiModelProperty(hidden = true)
+    private boolean useCache = false;
 
     public Map<Field, Object> getUpdateFieldMap() {
         return updateFieldMap;
@@ -98,6 +101,7 @@ public class BasePo implements Serializable {
                                 .setValue(o));
         return (T) this;
     }
+
     public <T extends BasePo> T gt(String field, Object o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
@@ -348,6 +352,23 @@ public class BasePo implements Serializable {
 
     public List<ConditionField> getConditionFieldList() {
         return Lists.newArrayList(this.getConditionFieldMap().values());
+    }
+
+    public boolean isUseCache() {
+        return useCache;
+    }
+
+    public <T extends BasePo> T withCache() {
+        return this.setUseCache(true);
+    }
+
+    public <T extends BasePo> T withoutCache() {
+        return this.setUseCache(false);
+    }
+
+    public <T extends BasePo> T setUseCache(boolean useCache) {
+        this.useCache = useCache;
+        return (T) this;
     }
 
     public enum CONDITION {
