@@ -32,8 +32,16 @@ public abstract class BaseDao<T extends BasePo> {
                     (Weigher<String, List<T>>) (key, value) -> value.size())
                     .expireAfterWrite(15, TimeUnit.MINUTES).build();
 
+    public JdbcTemplate getJdbcTemplate() {
+        return jdbcTemplate;
+    }
+
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
+
     @Autowired
-    private JdbcTemplate template;
+    private JdbcTemplate jdbcTemplate;
 
     protected final ResultSetExtractor<List<T>> rseList = rs -> {
         List<T> l = Lists.newLinkedList();
@@ -211,7 +219,7 @@ public abstract class BaseDao<T extends BasePo> {
     }
 
     public JdbcTemplate getTemplate() {
-        return template;
+        return getJdbcTemplate();
     }
 
 }
