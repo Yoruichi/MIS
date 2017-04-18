@@ -271,7 +271,7 @@ public abstract class BaseDao<T extends BasePo> {
         return cacheExpireTimeUnit;
     }
 
-    public <R extends Object> R doMethodWithCache(Function<T, R> function, T t, String key) {
+    public <R extends Object> R doMethod(Function<T, R> function, T t, String key) {
         R r = null;
         if (t.isUseCache()) try {
             r = (R) getCustomCache().get(key, () -> {
