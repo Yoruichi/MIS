@@ -75,6 +75,10 @@ public class Test {
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
             List<Foo> fll = fooDao.selectMany(new Foo().like("email", "%@google.com"));
             Assert.assertEquals(1, fll.size());
+            //test custom method
+            fooDao.selectFooCustom(foo);
+            fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
+            fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

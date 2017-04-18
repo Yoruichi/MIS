@@ -16,7 +16,10 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 
 public abstract class BaseDao<T extends BasePo> {
 
@@ -26,6 +29,7 @@ public abstract class BaseDao<T extends BasePo> {
 
     protected Cache<String, T> selectOneCache;
     protected Cache<String, List<T>> selectManyCache;
+    protected Cache<String, Object> customCache;
 
     protected Cache<String, T> getSelectOneCache() {
         if (selectOneCache == null)
@@ -43,6 +47,15 @@ public abstract class BaseDao<T extends BasePo> {
                             (Weigher<String, List<T>>) (key, value) -> value.size())
                             .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit()).build();
         return selectManyCache;
+    }
+
+    protected Cache<String, Object> getCustomCache() {
+        if (customCache == null)
+            customCache =
+                    CacheBuilder.newBuilder().maximumSize(getCacheSize())
+                            .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit())
+                            .build();
+        return customCache;
     }
 
     private int cacheSize = 2048;
@@ -184,7 +197,8 @@ public abstract class BaseDao<T extends BasePo> {
             if (o.isUseCache()) {
                 list = getSelectManyCache()
                         .get(sed.toString(), () -> {
-                            logger.info("No found in cache and will run sql {} with args {}", sed.sql, sed.args);
+                            logger.info("No found in cache and will run sql {} with args {}",
+                                    sed.sql, sed.args);
                             return getTemplate().query(sed.sql, sed.args, rseList);
                         });
                 logger.info("get result {} from cache with key {}", list, sed);
@@ -218,7 +232,8 @@ public abstract class BaseDao<T extends BasePo> {
             SelectNeed sed = SelectNeed.getSelectOneNeed(o);
             if (o.isUseCache()) {
                 t = getSelectOneCache().get(sed.toString(), () -> {
-                    logger.info("No found in cache and will run sql {} with args {}", sed.sql, sed.args);
+                    logger.info("No found in cache and will run sql {} with args {}", sed.sql,
+                            sed.args);
                     List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
                     if (l.size() > 0)
                         return l.get(0);
@@ -231,8 +246,7 @@ public abstract class BaseDao<T extends BasePo> {
                 if (l.size() > 0)
                     t = l.get(0);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
-                        sed.args,
-                        o, t);
+                        sed.args, o, t);
             }
         } catch (Exception e) {
             logger.error("Error when select one of class{}.Caused by {}", o, e);
@@ -255,5 +269,25 @@ public abstract class BaseDao<T extends BasePo> {
 
     public TimeUnit getCacheExpireTimeUnit() {
         return cacheExpireTimeUnit;
+    }
+
+    public <R extends Object> R doMethodWithCache(Function<T, R> function, T t, String key) {
+        R r = null;
+        if (t.isUseCache()) try {
+            r = (R) getCustomCache().get(key, () -> {
+                logger.info(
+                        "No found value with key {} in cache and will run function {} with parameter {}",
+                        key, function, t);
+                return function.apply(t);
+            });
+            logger.info("get result {} from cache with key {}", r, key);
+        } catch (ExecutionException e) {
+            logger.error("Error!When run function {} with parameter {}", function, t);
+            e.printStackTrace();
+        }
+        else {
+            r = function.apply(t);
+        }
+        return r;
     }
 }

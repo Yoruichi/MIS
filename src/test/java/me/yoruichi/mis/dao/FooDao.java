@@ -2,7 +2,12 @@ package me.yoruichi.mis.dao;
 
 import me.yoruichi.mis.BaseDao;
 import me.yoruichi.mis.po.Foo;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * Created by yoruichi on 16/10/26.
@@ -28,4 +33,13 @@ public class FooDao extends BaseDao<Foo> {
     @Override public int getCacheSize() {
         return 3;
     }
+
+    public Integer selectFooCustom(Foo foo) {
+        return this.getTemplate().query("select count(1) from foo", new Object[] {},
+                resultSet -> {
+                    resultSet.next();
+                    return resultSet.getInt(1);
+                });
+    }
+
 }
