@@ -30,6 +30,7 @@ public class Test {
         fooDao.getTemplate().update("delete from foo");
         foo.setName("testA");
         try {
+            //test insert
             fooDao.insertOne(foo);
             fooDao.insertOne(foo);
             int id = fooDao.insertOneGetId(foo);
@@ -39,6 +40,7 @@ public class Test {
             foo.setName("testB");
             foo.setGender(false);
             fooDao.insertOrUpdate(foo);
+            //test select
             Foo f = new Foo();
             f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
@@ -49,6 +51,7 @@ public class Test {
             f2.in("age", new Integer[] {22, 27});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
             Assert.assertEquals(3, fooDao.selectMany(f.or(f1).or(f2)).size());
+            //test cache
             Foo f3 = new Foo();
             f3.gte("age", 22).lt("age", 30);
             Assert.assertEquals(3, fooDao.selectMany(f3).size());
@@ -56,6 +59,9 @@ public class Test {
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
             fooDao.flushCache();
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
+            Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
+            Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
+            //test update
             f1.update("email", "whatever@google.com");
             fooDao.updateOne(f1);
             f.update("gender", true);

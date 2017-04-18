@@ -23,4 +23,9 @@ public class FooDao extends BaseDao<Foo> {
 //        return jdbcTemplate;
 //    }
 
+
+
+    @Override public int getCacheSize() {
+        return 3;
+    }
 }

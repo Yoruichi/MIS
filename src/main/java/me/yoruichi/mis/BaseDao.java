@@ -24,13 +24,30 @@ public abstract class BaseDao<T extends BasePo> {
 
     protected abstract Class<T> getEntityClass();
 
-    protected Cache<String, T> selectOneCache =
-            CacheBuilder.newBuilder().maximumSize(1024).expireAfterWrite(15, TimeUnit.MINUTES)
-                    .build();
-    protected Cache<String, List<T>> selectManyCache =
-            CacheBuilder.newBuilder().maximumWeight(2048).weigher(
-                    (Weigher<String, List<T>>) (key, value) -> value.size())
-                    .expireAfterWrite(15, TimeUnit.MINUTES).build();
+    protected Cache<String, T> selectOneCache;
+    protected Cache<String, List<T>> selectManyCache;
+
+    protected Cache<String, T> getSelectOneCache() {
+        if (selectOneCache == null)
+            selectOneCache =
+                    CacheBuilder.newBuilder().maximumSize(getCacheSize())
+                            .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit())
+                            .build();
+        return selectOneCache;
+    }
+
+    protected Cache<String, List<T>> getSelectManyCache() {
+        if (selectManyCache == null)
+            selectManyCache =
+                    CacheBuilder.newBuilder().maximumWeight(getCacheSize()).weigher(
+                            (Weigher<String, List<T>>) (key, value) -> value.size())
+                            .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit()).build();
+        return selectManyCache;
+    }
+
+    private int cacheSize = 2048;
+    private int cacheExpire = 15;
+    private TimeUnit cacheExpireTimeUnit = TimeUnit.MILLISECONDS;
 
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
@@ -68,8 +85,10 @@ public abstract class BaseDao<T extends BasePo> {
     };
 
     public void flushCache() {
-        selectOneCache.invalidateAll();
-        selectManyCache.invalidateAll();
+        if (selectOneCache != null)
+            selectOneCache.invalidateAll();
+        if (selectManyCache != null)
+            selectManyCache.invalidateAll();
     }
 
     public int updateOne(T o) throws Exception {
@@ -163,9 +182,12 @@ public abstract class BaseDao<T extends BasePo> {
         try {
             SelectNeed sed = SelectNeed.getSelectManyNeed(o);
             if (o.isUseCache()) {
-                list = selectManyCache
-                        .get(sed.toString(), () -> getTemplate().query(sed.sql, sed.args, rseList));
-                logger.info("get result {} from cache with SQL {}", list, sed);
+                list = getSelectManyCache()
+                        .get(sed.toString(), () -> {
+                            logger.info("No found in cache and will run sql {} with args {}", sed.sql, sed.args);
+                            return getTemplate().query(sed.sql, sed.args, rseList);
+                        });
+                logger.info("get result {} from cache with key {}", list, sed);
             } else {
                 list = getTemplate().query(sed.sql, sed.args, rseList);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
@@ -195,7 +217,8 @@ public abstract class BaseDao<T extends BasePo> {
         try {
             SelectNeed sed = SelectNeed.getSelectOneNeed(o);
             if (o.isUseCache()) {
-                t = selectOneCache.get(sed.toString(), () -> {
+                t = getSelectOneCache().get(sed.toString(), () -> {
+                    logger.info("No found in cache and will run sql {} with args {}", sed.sql, sed.args);
                     List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
                     if (l.size() > 0)
                         return l.get(0);
@@ -222,4 +245,15 @@ public abstract class BaseDao<T extends BasePo> {
         return getJdbcTemplate();
     }
 
+    public int getCacheSize() {
+        return cacheSize;
+    }
+
+    public int getCacheExpire() {
+        return cacheExpire;
+    }
+
+    public TimeUnit getCacheExpireTimeUnit() {
+        return cacheExpireTimeUnit;
+    }
 }
