@@ -2,6 +2,7 @@ package me.yoruichi.mis;
 
 import com.google.common.collect.Lists;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,9 +18,8 @@ public class UpdateNeed {
         this.args = args;
     }
 
-    private static Object[] getUpdateArgs(BasePo o) {
+    private static Object[] getConditionArgs(BasePo o) {
         List<Object> obs = Lists.newLinkedList();
-        obs.addAll(o.getUpdateFieldMap().values());
         obs.addAll(o.getConditionFieldList().stream()
                 .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
                         && cf.getCondition() != BasePo.CONDITION.NOT_IN
@@ -27,13 +27,18 @@ public class UpdateNeed {
                         && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
                 .map(ConditionField::getValue).collect(Collectors.toList()));
         o.getOrConditionList().stream().forEach(oo ->
-                obs.addAll(oo.getConditionFieldList().stream()
-                        .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
-                                && cf.getCondition() != BasePo.CONDITION.NOT_IN
-                                && cf.getCondition() != BasePo.CONDITION.IS_NULL
-                                && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
-                        .map(ConditionField::getValue).collect(Collectors.toList()))
+                obs.addAll(Arrays.asList(getConditionArgs(oo)))
         );
+        o.getAndConditionList().stream().forEach(oo ->
+                obs.addAll(Arrays.asList(getConditionArgs(oo)))
+        );
+        return obs.toArray();
+    }
+
+    private static Object[] getUpdateArgs(BasePo o) {
+        List<Object> obs = Lists.newLinkedList();
+        obs.addAll(o.getUpdateFieldMap().values());
+        obs.addAll(Arrays.asList(getConditionArgs(o)));
         return obs.toArray();
     }
 
@@ -43,7 +48,7 @@ public class UpdateNeed {
         }
         o.ready();
         return new UpdateNeed(SqlBuilder
-                .getUpdateSql(o.getClass(), o.getConditionFieldList(), o.getOrConditionFields(),
+                .getUpdateSql(o.getClass(), o.getConditionFieldList(), o.getOrConditionList(),o.getAndConditionList(),
                         o.getUpdateFieldMap()), getUpdateArgs(o));
     }
 }

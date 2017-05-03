@@ -19,25 +19,35 @@ public class SqlBuilder {
                     'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z');
 
     public static String getUpdateSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            List<ConditionField> conditionFields, List<? extends BasePo> orConditionList,
+            List<? extends BasePo> andConditionList,
             Map<Field, Object> updateFieldMap) {
         StringBuilder sb = new StringBuilder();
         String tableName = getDbName(c.getSimpleName());
         sb.append("update `").append(tableName).append("` set ");
-//        Field[] fields = c.getDeclaredFields();
-//
-//        Arrays.stream(fields).filter(updateFieldMap::containsKey)
-//                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
-//                        .append(" ,"));
         updateFieldMap.keySet().stream()
                 .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
                         .append(" ,"));
         sb.replace(sb.length() - 1, sb.length(), " ");
         if (conditionFields != null && conditionFields.size() > 0) {
-            sb.append(" where").append(getConditionSql(c, conditionFields));
-            if (orConditionFields != null && orConditionFields.size() > 0) {
-                orConditionFields.stream()
-                        .forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
+            sb.append(" where");
+            if ((orConditionList != null && orConditionList.size() > 0) || (
+                    andConditionList != null && andConditionList.size() > 0)) {
+                sb.append("(").append(getConditionSql(c, conditionFields)).append(")");
+            } else {
+                sb.append(getConditionSql(c, conditionFields));
+            }
+            if (orConditionList != null && orConditionList.size() > 0) {
+                orConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                        || oc.getOrConditionList().size() > 0
+                        || oc.getAndConditionList().size() > 0)
+                        .forEach(oc -> sb.append(" or (").append(getConditionSql(oc)).append(")"));
+            }
+            if (andConditionList != null && andConditionList.size() > 0) {
+                andConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                        || oc.getOrConditionList().size() > 0
+                        || oc.getAndConditionList().size() > 0)
+                        .forEach(ac -> sb.append(" and (").append(getConditionSql(ac)).append(")"));
             }
         }
         return sb.toString();

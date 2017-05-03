@@ -63,7 +63,7 @@ public class Test {
             Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
             Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
             //test update
-            f1.update("email", "whatever@google.com");
+            f1.update("email", "whatever@google.com").gt("age",0).or(new Foo().lt("age", 30).and(new Foo().setGender(false)));
             fooDao.updateOne(f1);
             f.update("gender", true);
             fooDao.updateMany(Lists.newArrayList(f,f2));
@@ -75,7 +75,7 @@ public class Test {
             foo.setGender(false);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
             List<Foo> fll = fooDao.selectMany(new Foo().like("email", "%@google.com"));
-            Assert.assertEquals(1, fll.size());
+            Assert.assertEquals(3, fll.size());
             //test custom method
             fooDao.selectFooCustom(foo);
             fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
