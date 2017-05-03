@@ -16,6 +16,7 @@ import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -27,11 +28,11 @@ public abstract class BaseDao<T extends BasePo> {
 
     protected abstract Class<T> getEntityClass();
 
-    protected Cache<String, T> selectOneCache;
-    protected Cache<String, List<T>> selectManyCache;
-    protected Cache<String, Object> customCache;
+    protected Cache<String, Optional<T>> selectOneCache;
+    protected Cache<String, Optional<List<T>>> selectManyCache;
+    protected Cache<String, Optional<Object>> customCache;
 
-    protected Cache<String, T> getSelectOneCache() {
+    protected Cache<String, Optional<T>> getSelectOneCache() {
         if (selectOneCache == null)
             selectOneCache =
                     CacheBuilder.newBuilder().maximumSize(getCacheSize())
@@ -40,16 +41,16 @@ public abstract class BaseDao<T extends BasePo> {
         return selectOneCache;
     }
 
-    protected Cache<String, List<T>> getSelectManyCache() {
+    protected Cache<String, Optional<List<T>>> getSelectManyCache() {
         if (selectManyCache == null)
             selectManyCache =
                     CacheBuilder.newBuilder().maximumWeight(getCacheSize()).weigher(
-                            (Weigher<String, List<T>>) (key, value) -> value.size())
+                            (Weigher<String, Optional<List<T>>>) (key, value) -> value.get().size())
                             .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit()).build();
         return selectManyCache;
     }
 
-    protected Cache<String, Object> getCustomCache() {
+    protected Cache<String, Optional<Object>> getCustomCache() {
         if (customCache == null)
             customCache =
                     CacheBuilder.newBuilder().maximumSize(getCacheSize())
@@ -195,20 +196,24 @@ public abstract class BaseDao<T extends BasePo> {
         try {
             SelectNeed sed = SelectNeed.getSelectManyNeed(o);
             if (o.isUseCache()) {
-                list = getSelectManyCache()
-                        .get(sed.toString(), () -> {
-                            logger.info("No found in cache and will run sql {} with args {}",
-                                    sed.sql, sed.args);
-                            return getTemplate().query(sed.sql, sed.args, rseList);
-                        });
-                logger.info("get result {} from cache with key {}", list, sed);
+                Optional<List<T>> op = getSelectManyCache().get(sed.toString(), () -> {
+                    logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
+                            sed.args);
+                    return Optional.ofNullable(getTemplate().query(sed.sql, sed.args, rseList));
+                });
+                if (op.isPresent()) {
+                    list = op.get();
+                    logger.info("Get result {} from cache with key {}", list, sed);
+                } else {
+                    logger.warn("Warn! Get NULL result from cache with key {}", sed);
+                }
             } else {
                 list = getTemplate().query(sed.sql, sed.args, rseList);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
                         sed.args, o, list);
             }
         } catch (Exception e) {
-            logger.error("Error when select many of class{}.Caused by {}", o, e);
+            logger.error("Error when select many of class {}.Caused by: {}", o, e);
             throw e;
         }
         return list;
@@ -231,20 +236,26 @@ public abstract class BaseDao<T extends BasePo> {
         try {
             SelectNeed sed = SelectNeed.getSelectOneNeed(o);
             if (o.isUseCache()) {
-                t = getSelectOneCache().get(sed.toString(), () -> {
-                    logger.info("No found in cache and will run sql {} with args {}", sed.sql,
-                            sed.args);
-                    List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
-                    if (l.size() > 0)
-                        return l.get(0);
-                    else
-                        return null;
-                });
-                logger.info("get resule {} from cache with key {}", t, sed);
+                try {
+                    Optional<T> op = getSelectOneCache().get(sed.toString(), () -> {
+                        logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
+                                sed.args);
+                        List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
+                        if (l.size() > 0) return Optional.ofNullable(l.get(0));
+                        else return Optional.empty();
+                    });
+                    if (op.isPresent()) {
+                        t = op.get();
+                        logger.info("Get result {} from cache with key {}", t, sed);
+                    } else {
+                        logger.warn("Warn! Get NULL result from cache with key {}", sed);
+                    }
+                } catch (ExecutionException e) {
+                    logger.warn("Warn! Get result from cache with key {}, Caused by:", sed, e);
+                }
             } else {
                 List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
-                if (l.size() > 0)
-                    t = l.get(0);
+                if (l.size() > 0) t = l.get(0);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
                         sed.args, o, t);
             }
@@ -274,13 +285,18 @@ public abstract class BaseDao<T extends BasePo> {
     public <R extends Object> R doMethod(Function<T, R> function, T t, String key) {
         R r = null;
         if (t.isUseCache()) try {
-            r = (R) getCustomCache().get(key, () -> {
-                logger.info(
+            Optional<Object> op = getCustomCache().get(key, () -> {
+                logger.debug(
                         "No found value with key {} in cache and will run function {} with parameter {}",
-                        key, function, t);
-                return function.apply(t);
+                        key, function.getClass().getName(), t);
+                return Optional.ofNullable(function.apply(t));
             });
-            logger.info("get result {} from cache with key {}", r, key);
+            if (op.isPresent()) {
+                r = (R) op.get();
+                logger.info("Get result {} from cache with key {}", r, key);
+            } else {
+                logger.warn("Warn! Get NULL result from cache with key {}", key);
+            }
         } catch (ExecutionException e) {
             logger.error("Error!When run function {} with parameter {}", function, t);
             e.printStackTrace();

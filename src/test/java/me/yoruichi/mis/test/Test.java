@@ -1,7 +1,6 @@
 package me.yoruichi.mis.test;
 
 import com.google.common.collect.Lists;
-import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
@@ -53,6 +52,7 @@ public class Test {
             Assert.assertEquals(3, fooDao.selectMany(f).size());
             Assert.assertEquals(3, fooDao.selectMany(f.or(f1).or(f2)).size());
             //test cache
+            System.out.println("test cache");
             Foo f3 = new Foo();
             f3.gte("age", 22).lt("age", 30);
             Assert.assertEquals(3, fooDao.selectMany(f3).size());
@@ -62,6 +62,7 @@ public class Test {
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
             Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
             Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
+            Assert.assertEquals(null, fooDao.select(new Foo().setAge(1).withCache()));
             //test update
             f1.update("email", "whatever@google.com").gt("age",0).or(new Foo().lt("age", 30).and(new Foo().setGender(false)));
             fooDao.updateOne(f1);
