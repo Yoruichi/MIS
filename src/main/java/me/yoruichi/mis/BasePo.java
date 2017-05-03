@@ -48,6 +48,8 @@ public class BasePo implements Serializable {
     @ApiModelProperty(hidden = true)
     private List<BasePo> orConditionList = Lists.newLinkedList();
     @ApiModelProperty(hidden = true)
+    private List<BasePo> andConditionList = Lists.newLinkedList();
+    @ApiModelProperty(hidden = true)
     private boolean useCache = false;
 
     public Map<Field, Object> getUpdateFieldMap() {
@@ -63,7 +65,11 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
-    public List<BasePo> getOrConditionList() {
+    public List<? extends BasePo> getAndConditionList() {
+        return andConditionList;
+    }
+
+    public List<? extends BasePo> getOrConditionList() {
         return orConditionList;
     }
 
@@ -75,11 +81,27 @@ public class BasePo implements Serializable {
         return orConditionFields;
     }
 
+    public List<List<ConditionField>> getAndConditionFields() throws Exception {
+        List<List<ConditionField>> andConditionFields = Lists.newLinkedList();
+        for (BasePo o : this.getAndConditionList()) {
+            andConditionFields.add(o.ready().getConditionFieldList());
+        }
+        return andConditionFields;
+    }
+
     public <T extends BasePo> T or(T other) throws Exception {
         if (!other.getClass().getName().equals(this.getClass().getName())) {
             throw new Exception("Are you crazy?Please put same class in one SQL.");
         }
-        this.orConditionList.add(other);
+        this.orConditionList.add(other.ready());
+        return (T) this;
+    }
+
+    public <T extends BasePo> T and(T other) throws Exception {
+        if (!other.getClass().getName().equals(this.getClass().getName())) {
+            throw new Exception("Are you crazy?Please put same class in one SQL.");
+        }
+        this.andConditionList.add(other.ready());
         return (T) this;
     }
 

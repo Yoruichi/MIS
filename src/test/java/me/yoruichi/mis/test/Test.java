@@ -1,6 +1,7 @@
 package me.yoruichi.mis.test;
 
 import com.google.common.collect.Lists;
+import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
@@ -79,6 +80,11 @@ public class Test {
             fooDao.selectFooCustom(foo);
             fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
             fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
+            //test and/or
+            System.out.println("test for and/or");
+            Assert.assertEquals(3, fooDao.selectMany(new Foo().setAge(22).or(new Foo().setAge(27))).size());
+            Assert.assertEquals(0, fooDao.selectMany(new Foo().setAge(22).and(new Foo().setAge(27))).size());
+            Assert.assertEquals(2, fooDao.selectMany(new Foo().setAge(22).and(new Foo().setAge(27).or(new Foo().gt("age", 0)))).size());
         } catch (Exception e) {
             e.printStackTrace();
         }

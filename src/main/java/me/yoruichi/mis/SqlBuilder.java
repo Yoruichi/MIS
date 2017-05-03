@@ -4,6 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,8 +29,9 @@ public class SqlBuilder {
 //        Arrays.stream(fields).filter(updateFieldMap::containsKey)
 //                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
 //                        .append(" ,"));
-        updateFieldMap.keySet().stream().forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
-                .append(" ,"));
+        updateFieldMap.keySet().stream()
+                .forEach(f -> sb.append("`").append(getDbName(f.getName())).append("` = ?")
+                        .append(" ,"));
         sb.replace(sb.length() - 1, sb.length(), " ");
         if (conditionFields != null && conditionFields.size() > 0) {
             sb.append(" where").append(getConditionSql(c, conditionFields));
@@ -91,11 +93,43 @@ public class SqlBuilder {
     }
 
     public static String getSelectOneSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            List<ConditionField> conditionFields, List<? extends BasePo> orConditionList,
+            List<? extends BasePo> andConditionList,
             List<Field> includeFields, boolean isForUpdate) {
-        return getSelectSql(c, conditionFields, orConditionFields, includeFields, null, false, 0, 0,
+        return getSelectSql(c, conditionFields, orConditionList, andConditionList, includeFields,
+                null, false, 0, 0,
                 isForUpdate);
     }
+
+    public static <T extends BasePo> String getConditionSql(T o) {
+        StringBuilder sb = new StringBuilder();
+        Class<? extends BasePo> c = o.getClass();
+        List<ConditionField> conditionFields = o.getConditionFieldList();
+        List<? extends BasePo> orConditionList = o.getOrConditionList();
+        List<? extends BasePo> andConditionList = o.getAndConditionList();
+        if (conditionFields != null && conditionFields.size() > 0) {
+            if ((orConditionList != null && orConditionList.size() > 0) || (
+                    andConditionList != null && andConditionList.size() > 0)) {
+                sb.append("(").append(getConditionSql(c, conditionFields)).append(")");
+            } else {
+                sb.append(getConditionSql(c, conditionFields));
+            }
+        }
+
+        if (orConditionList != null && orConditionList.size() > 0) {
+            orConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                    || oc.getOrConditionList().size() > 0 || oc.getAndConditionList().size() > 0)
+                    .forEach(oc -> sb.append(" or (").append(getConditionSql(oc)).append(")"));
+        }
+        if (andConditionList != null && andConditionList.size() > 0) {
+            andConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                    || oc.getOrConditionList().size() > 0 || oc.getAndConditionList().size() > 0)
+                    .forEach(ac -> sb.append(" and (").append(getConditionSql(ac)).append(")"));
+        }
+
+        return sb.toString();
+    }
+
 
     public static String getConditionSql(Class<? extends BasePo> c,
             List<ConditionField> conditionFields) {
@@ -126,7 +160,8 @@ public class SqlBuilder {
     }
 
     public static String getSelectSql(Class<? extends BasePo> c,
-            List<ConditionField> conditionFields, List<List<ConditionField>> orConditionFields,
+            List<ConditionField> conditionFields, List<? extends BasePo> orConditionList,
+            List<? extends BasePo> andConditionList,
             List<Field> includeFields,
             List<Field> orderFields,
             boolean asc, int limit, int index, boolean isForUpdate) {
@@ -138,10 +173,24 @@ public class SqlBuilder {
         sb.replace(sb.length() - 1, sb.length(), " from `").append(getDbName(c.getSimpleName()))
                 .append("`");
         if (conditionFields != null && conditionFields.size() > 0) {
-            sb.append(" where").append(getConditionSql(c, conditionFields));
-            if (orConditionFields != null && orConditionFields.size() > 0) {
-                orConditionFields.stream()
-                        .forEach(o -> sb.append(" or (").append(getConditionSql(c, o)).append(")"));
+            sb.append(" where");
+            if ((orConditionList != null && orConditionList.size() > 0) || (
+                    andConditionList != null && andConditionList.size() > 0)) {
+                sb.append("(").append(getConditionSql(c, conditionFields)).append(")");
+            } else {
+                sb.append(getConditionSql(c, conditionFields));
+            }
+            if (orConditionList != null && orConditionList.size() > 0) {
+                orConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                        || oc.getOrConditionList().size() > 0
+                        || oc.getAndConditionList().size() > 0)
+                        .forEach(oc -> sb.append(" or (").append(getConditionSql(oc)).append(")"));
+            }
+            if (andConditionList != null && andConditionList.size() > 0) {
+                andConditionList.stream().filter(oc -> oc.getConditionFieldList().size() > 0
+                        || oc.getOrConditionList().size() > 0
+                        || oc.getAndConditionList().size() > 0)
+                        .forEach(ac -> sb.append(" and (").append(getConditionSql(ac)).append(")"));
             }
         }
 

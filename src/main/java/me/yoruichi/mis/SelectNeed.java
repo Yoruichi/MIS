@@ -4,6 +4,7 @@ import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,8 +51,8 @@ public class SelectNeed {
         o.ready();
         return new SelectNeed(
                 SqlBuilder
-                        .getSelectOneSql(clazz, o.getConditionFieldList(), o.getOrConditionFields(),
-                                inc, isForUpdate),
+                        .getSelectOneSql(clazz, o.getConditionFieldList(), o.getOrConditionList(),
+                                o.getAndConditionList(), inc, isForUpdate),
                 getSelectArgs(o));
     }
 
@@ -64,12 +65,10 @@ public class SelectNeed {
                         && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
                 .map(ConditionField::getValue).collect(Collectors.toList()));
         o.getOrConditionList().stream().forEach(oo ->
-                obs.addAll(oo.getConditionFieldList().stream()
-                        .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
-                                && cf.getCondition() != BasePo.CONDITION.NOT_IN
-                                && cf.getCondition() != BasePo.CONDITION.IS_NULL
-                                && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
-                        .map(ConditionField::getValue).collect(Collectors.toList()))
+                obs.addAll(Arrays.asList(getSelectArgs(oo)))
+        );
+        o.getAndConditionList().stream().forEach(oo ->
+                obs.addAll(Arrays.asList(getSelectArgs(oo)))
         );
         return obs.toArray();
     }
@@ -100,10 +99,9 @@ public class SelectNeed {
         if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
         o.ready();
         return new SelectNeed(
-                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), o.getOrConditionFields(),
-                        inc, orderByFields, asc,
-                        limit, index, isForUpdate),
+                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), o.getOrConditionList(),
+                        o.getAndConditionList(), inc, orderByFields, asc, limit, index,
+                        isForUpdate),
                 getSelectArgs(o));
-
     }
 }
