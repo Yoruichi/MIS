@@ -64,10 +64,15 @@ public class Test {
             Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
             Assert.assertEquals(null, fooDao.select(new Foo().setAge(1).withCache()));
             //test update
+            System.out.println("test for update");
             f1.update("email", "whatever@google.com").gt("age",0).or(new Foo().lt("age", 30).and(new Foo().setGender(false)));
             fooDao.updateOne(f1);
             f.update("gender", true);
             fooDao.updateMany(Lists.newArrayList(f,f2));
+            Foo ff = new Foo().setAge(27).update("gender", true);
+            Foo ff1 = new Foo().setAge(22).update("gender", false);
+            fooDao.updateMany(Lists.newArrayList(ff,ff1));
+            Assert.assertEquals(false, fooDao.select(ff1).getGender());
             foo = new Foo();
             foo.setGender(true).orderBy("id").setAsc();
             List<Foo> fl = fooDao.selectMany(foo);

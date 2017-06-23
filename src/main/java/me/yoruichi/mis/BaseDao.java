@@ -1,5 +1,6 @@
 package me.yoruichi.mis;
 
+import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.Weigher;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.lang.reflect.Field;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Callable;
@@ -108,7 +110,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int updateOne(T o) throws Exception {
         try {
             UpdateNeed ind = UpdateNeed.getUpdateNeed(o);
-            logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
             return getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
@@ -119,7 +121,8 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] updateMany(List<T> list) throws Exception {
         try {
             UpdateManyNeed ind = UpdateManyNeed.getUpdateManyNeed(list);
-            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args, list);
+            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner
+                    .on(":").join(a,b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po list{}.Caused by:{}", list, e);
@@ -130,7 +133,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int insertOne(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
-            logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
             return getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
@@ -141,7 +144,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int insertOneGetId(T o) throws Exception {
         try {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
-            logger.info("running:{} with args{} based on po {}", ind.sql, ind.args, o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
             KeyHolder keyHolder = new GeneratedKeyHolder();
             getTemplate().update(con -> {
                 PreparedStatement ps =
@@ -161,7 +164,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] insertMany(List<T> list) throws Exception {
         try {
             InsertManyNeed ind = InsertManyNeed.getInsertManyNeed(list);
-            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args, list);
+            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert list of {}.Caused by:", list, e);
@@ -172,7 +175,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int insertOrUpdate(T o) throws Exception {
         try {
             InsertOrUpdateNeed ind = InsertOrUpdateNeed.getInsertOrUpdateNeed(o);
-            logger.info("running:{} with args{} based on class{}", ind.sql, ind.args, o);
+            logger.info("running:{} with args{} based on class{}", ind.sql, Arrays.toString(ind.args), o);
             return getTemplate().update(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert or update po class{}.Caused by:{}", o, e);
@@ -183,7 +186,8 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] insertOrUpdateMany(List<T> list) throws Exception {
         try {
             InsertOrUpdateNeedMany ind = InsertOrUpdateNeedMany.getInsertOrUpdateNeedMany(list);
-            logger.info("running:{} with args{} based on class{}", ind.sql, ind.args, list);
+            logger.info("running:{} with args{} based on class{}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get()
+                    , list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert or update list of {}.Caused by:{}", list, e);
@@ -198,7 +202,7 @@ public abstract class BaseDao<T extends BasePo> {
             if (o.isUseCache()) {
                 Optional<List<T>> op = getSelectManyCache().get(sed.toString(), () -> {
                     logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
-                            sed.args);
+                            Arrays.toString(sed.args));
                     return Optional.ofNullable(getTemplate().query(sed.sql, sed.args, rseList));
                 });
                 if (op.isPresent()) {
@@ -210,7 +214,7 @@ public abstract class BaseDao<T extends BasePo> {
             } else {
                 list = getTemplate().query(sed.sql, sed.args, rseList);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
-                        sed.args, o, list);
+                        Arrays.toString(sed.args), o, list);
             }
         } catch (Exception e) {
             logger.error("Error when select many of class {}.Caused by: {}", o, e);
@@ -239,7 +243,7 @@ public abstract class BaseDao<T extends BasePo> {
                 try {
                     Optional<T> op = getSelectOneCache().get(sed.toString(), () -> {
                         logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
-                                sed.args);
+                                Arrays.toString(sed.args));
                         List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
                         if (l.size() > 0) return Optional.ofNullable(l.get(0));
                         else return Optional.empty();
@@ -257,7 +261,7 @@ public abstract class BaseDao<T extends BasePo> {
                 List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
                 if (l.size() > 0) t = l.get(0);
                 logger.info("running:{} with args{} based on class{} got result{}", sed.sql,
-                        sed.args, o, t);
+                        Arrays.toString(sed.args), o, t);
             }
         } catch (Exception e) {
             logger.error("Error when select one of class{}.Caused by {}", o, e);
@@ -307,3 +311,4 @@ public abstract class BaseDao<T extends BasePo> {
         return r;
     }
 }
+
