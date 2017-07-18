@@ -161,6 +161,26 @@ public abstract class BaseDao<T extends BasePo> {
         }
     }
 
+    public long insertOneGetLongId(T o) throws Exception {
+        try {
+            InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            getTemplate().update(con -> {
+                PreparedStatement ps =
+                        con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
+                for (int i = 0; i < ind.args.length; i++) {
+                    ps.setObject((i + 1), ind.args[i]);
+                }
+                return ps;
+            }, keyHolder);
+            return keyHolder.getKey().longValue();
+        } catch (Exception e) {
+            logger.error("Error when insert po class{}.Caused by:{}", o, e);
+            throw e;
+        }
+    }
+
     public int[] insertMany(List<T> list) throws Exception {
         try {
             InsertManyNeed ind = InsertManyNeed.getInsertManyNeed(list);
