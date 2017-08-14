@@ -287,7 +287,7 @@ public class BasePo implements Serializable {
             }
             getConditionFieldMap()
                     .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
-                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
                                     .setValues(so));
         } else {
             getConditionFieldMap()
