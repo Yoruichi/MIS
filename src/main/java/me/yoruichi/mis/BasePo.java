@@ -1,4 +1,4 @@
-package com.redteamobile.mis;
+package me.yoruichi.mis;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;

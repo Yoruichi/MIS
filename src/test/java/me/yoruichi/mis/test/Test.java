@@ -1,8 +1,8 @@
-package com.redteamobile.mis.test;
+package me.yoruichi.mis.test;
 
 import com.google.common.collect.Lists;
-import com.redteamobile.mis.dao.FooDao;
-import com.redteamobile.mis.po.Foo;
+import me.yoruichi.mis.dao.FooDao;
+import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
