@@ -1,4 +1,4 @@
-package me.yoruichi.mis;
+package com.redteamobile.mis;
 
 import com.google.common.collect.Lists;
 

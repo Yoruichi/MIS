@@ -1,4 +1,4 @@
-package me.yoruichi.mis;
+package com.redteamobile.mis;
 
 import com.google.common.base.Joiner;
 import com.google.common.cache.Cache;
@@ -121,8 +121,7 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] updateMany(List<T> list) throws Exception {
         try {
             UpdateManyNeed ind = UpdateManyNeed.getUpdateManyNeed(list);
-            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner
-                    .on(":").join(a,b)).get(), list);
+            logger.info("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po list{}.Caused by:{}", list, e);
@@ -135,26 +134,6 @@ public abstract class BaseDao<T extends BasePo> {
             InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
             logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
             return getTemplate().update(ind.sql, ind.args);
-        } catch (Exception e) {
-            logger.error("Error when insert po class{}.Caused by:{}", o, e);
-            throw e;
-        }
-    }
-
-    public int insertOneGetId(T o) throws Exception {
-        try {
-            InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
-            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            getTemplate().update(con -> {
-                PreparedStatement ps =
-                        con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
-                for (int i = 0; i < ind.args.length; i++) {
-                    ps.setObject((i + 1), ind.args[i]);
-                }
-                return ps;
-            }, keyHolder);
-            return keyHolder.getKey().intValue();
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
             throw e;
@@ -175,6 +154,26 @@ public abstract class BaseDao<T extends BasePo> {
                 return ps;
             }, keyHolder);
             return keyHolder.getKey().longValue();
+        } catch (Exception e) {
+            logger.error("Error when insert po class{}.Caused by:{}", o, e);
+            throw e;
+        }
+    }
+
+    public int insertOneGetId(T o) throws Exception {
+        try {
+            InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
+            logger.info("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
+            KeyHolder keyHolder = new GeneratedKeyHolder();
+            getTemplate().update(con -> {
+                PreparedStatement ps =
+                        con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
+                for (int i = 0; i < ind.args.length; i++) {
+                    ps.setObject((i + 1), ind.args[i]);
+                }
+                return ps;
+            }, keyHolder);
+            return keyHolder.getKey().intValue();
         } catch (Exception e) {
             logger.error("Error when insert po class{}.Caused by:{}", o, e);
             throw e;
@@ -331,4 +330,3 @@ public abstract class BaseDao<T extends BasePo> {
         return r;
     }
 }
-

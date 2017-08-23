@@ -1,4 +1,4 @@
-package me.yoruichi.mis;
+package com.redteamobile.mis;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
@@ -260,21 +260,25 @@ public class BasePo implements Serializable {
 
     public <T extends BasePo> T in(String field, Object[] o) throws Exception {
         Field f = this.getClass().getDeclaredField(field);
-        if (f.getType().equals(String.class)) {
-            String[] so = new String[o.length];
-            for (int i = 0; i < o.length; i++) {
-                so[i] = "'" + o[i].toString() + "'";
-            }
-            getConditionFieldMap()
-                    .put(this.getConditionFieldKey(field, CONDITION.IN),
-                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                                    .setValues(so));
-        } else {
-            getConditionFieldMap()
-                    .put(this.getConditionFieldKey(field, CONDITION.IN),
-                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                                    .setValues(o));
-        }
+        getConditionFieldMap()
+                .put(this.getConditionFieldKey(field, CONDITION.IN),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+                                .setValues(o));
+//        if (f.getType().equals(String.class)) {
+//            String[] so = new String[o.length];
+//            for (int i = 0; i < o.length; i++) {
+//                so[i] = "'" + o[i].toString() + "'";
+//            }
+//            getConditionFieldMap()
+//                    .put(this.getConditionFieldKey(field, CONDITION.IN),
+//                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+//                                    .setValues(so));
+//        } else {
+//            getConditionFieldMap()
+//                    .put(this.getConditionFieldKey(field, CONDITION.IN),
+//                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
+//                                    .setValues(o));
+//        }
         return (T) this;
     }
 

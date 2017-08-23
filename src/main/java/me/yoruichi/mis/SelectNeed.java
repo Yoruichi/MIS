@@ -1,6 +1,5 @@
-package me.yoruichi.mis;
+package com.redteamobile.mis;
 
-import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
@@ -58,12 +57,29 @@ public class SelectNeed {
 
     private static Object[] getSelectArgs(BasePo o) {
         List<Object> obs = Lists.newLinkedList();
-        obs.addAll(o.getConditionFieldList().stream()
-                .filter(cf -> cf.getCondition() != BasePo.CONDITION.IN
-                        && cf.getCondition() != BasePo.CONDITION.NOT_IN
-                        && cf.getCondition() != BasePo.CONDITION.IS_NULL
-                        && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
-                .map(ConditionField::getValue).collect(Collectors.toList()));
+        o.getConditionFieldList().stream()
+                .forEach(cf -> {
+                            switch (cf.getCondition()) {
+                                case IN:
+                                case NOT_IN:
+                                    obs.addAll(Arrays.asList(cf.getValues()));
+                                    break;
+                                case IS_NULL:
+                                case IS_NOT_NULL:
+                                    break;
+                                default:
+                                    obs.add(cf.getValue());
+                                    break;
+                            }
+                        }
+                );
+//        obs.addAll(o.getConditionFieldList().stream()
+//                .filter(cf ->
+//                        cf.getCondition() != BasePo.CONDITION.IN
+//                        && cf.getCondition() != BasePo.CONDITION.NOT_IN &&
+//                         cf.getCondition() != BasePo.CONDITION.IS_NULL
+//                        && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
+//                .map(ConditionField::getValue).collect(Collectors.toList()));
         o.getOrConditionList().stream().forEach(oo ->
                 obs.addAll(Arrays.asList(getSelectArgs(oo)))
         );

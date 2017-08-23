@@ -1,4 +1,4 @@
-package me.yoruichi.mis;
+package com.redteamobile.mis;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -150,9 +150,13 @@ public class SqlBuilder {
                 switch (cf.getCondition()) {
                     case IN:
                     case NOT_IN:
-                        String values = Lists.newArrayList(cf.getValues()).toString();
-                        sb.append(cf.getCondition().getSign()).append(" (")
-                                .append(values.substring(1, values.length() - 1)).append(")");
+                        sb.append(cf.getCondition().getSign()).append(" (");
+                        Arrays.stream(cf.getValues()).forEach(a -> {
+                            sb.append("?, ");
+                        });
+//                                .append(values.substring(1, values.length() - 1))
+//                                .append(")");
+                        sb.replace(sb.length() - 2, sb.length() - 1, ")");
                         break;
                     case IS_NULL:
                     case IS_NOT_NULL:
