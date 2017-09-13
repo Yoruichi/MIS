@@ -1,13 +1,9 @@
 package me.yoruichi.mis;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SqlBuilder {
 
@@ -177,7 +173,7 @@ public class SqlBuilder {
             List<ConditionField> conditionFields, List<? extends BasePo> orConditionList,
             List<? extends BasePo> andConditionList,
             List<Field> includeFields,
-            List<Field> orderFields,
+            Collection<OrderField> orderFields,
             boolean asc, int limit, int index, boolean isForUpdate) {
         StringBuilder sb = new StringBuilder();
         sb.append("select ");
@@ -210,10 +206,10 @@ public class SqlBuilder {
 
         if (orderFields != null && orderFields.size() > 0) {
             sb.append(" order by `");
-            for (Field orderField : orderFields) {
-                sb.append(getDbName(orderField.getName())).append("`,");
+            for (OrderField orderField : orderFields) {
+                sb.append(getDbName(orderField.getFieldNname())).append("` ").append(orderField.isAsc()  ? " asc" : " desc").append(",");
             }
-            sb.replace(sb.length() - 1, sb.length(), asc ? " asc" : " desc");
+            sb.replace(sb.length() - 1, sb.length(), " ");
         }
         if (limit > 0) {
             sb.append(" limit ").append(limit);

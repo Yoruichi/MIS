@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class BasePo implements Serializable {
 
@@ -34,7 +35,7 @@ public class BasePo implements Serializable {
     //    @ApiModelProperty(hidden = true)
 //    private Set<String> groupByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
-    private Set<String> orderByField = Sets.newLinkedHashSet();
+    private Set<OrderField> orderByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
     private boolean asc;
     @ApiModelProperty(hidden = true)
@@ -110,8 +111,16 @@ public class BasePo implements Serializable {
 //        return (T) this;
 //    }
 
+    public <T extends BasePo> T orderBy(String field, boolean asc) {
+        getOrderByField().add(new OrderField(field, asc));
+        return (T) this;
+    }
+
     public <T extends BasePo> T orderBy(String... fields) {
-        getOrderByField().addAll(Arrays.asList(fields));
+        Set<OrderField> orderFieldList =
+                Arrays.asList(fields).stream().map(f -> new OrderField(f, this.asc))
+                        .collect(Collectors.toSet());
+        getOrderByField().addAll(orderFieldList);
         return (T) this;
     }
 
@@ -367,11 +376,11 @@ public class BasePo implements Serializable {
 //        return (T) this;
 //    }
 
-    public Set<String> getOrderByField() {
+    public Set<OrderField> getOrderByField() {
         return orderByField;
     }
 
-    public <T extends BasePo> T setOrderByField(Set<String> orderByField) {
+    public <T extends BasePo> T setOrderByField(Set<OrderField> orderByField) {
         this.orderByField = orderByField;
         return (T) this;
     }

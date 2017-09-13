@@ -4,8 +4,8 @@ import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Created by yoruichi on 16/10/25.
@@ -96,17 +96,12 @@ public class SelectNeed {
         for (int i = 0; i < fs.length; i++) {
             includeFields[i] = fs[i].getName();
         }
-        List<Field> orderByFieldList = Lists.newLinkedList();
-        for (String orderField : o.getOrderByField()) {
-            Field orderByField = clazz.getDeclaredField(orderField);
-            orderByFieldList.add(orderByField);
-        }
-        return getSelectManyNeed(o, includeFields, orderByFieldList, o.isAsc(), o.getLimit(),
+        return getSelectManyNeed(o, includeFields, o.getOrderByField(), o.isAsc(), o.getLimit(),
                 o.getIndex(), o.isForUpdate());
     }
 
     public static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields,
-            List<Field> orderByFields,
+            Collection<OrderField> orderByFields,
             boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
