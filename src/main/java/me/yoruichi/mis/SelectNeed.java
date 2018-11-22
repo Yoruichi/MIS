@@ -105,9 +105,12 @@ public class SelectNeed {
             boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
-        for (int i = 0; i < includeFields.length; i++)
-            inc.add(clazz.getDeclaredField(includeFields[i]));
-        if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
+        for (String includeField : includeFields) {
+            inc.add(clazz.getDeclaredField(includeField));
+        }
+        if (inc.size() == 0) {
+            throw new Exception("Object has no valid value,please check.");
+        }
         o.ready();
         return new SelectNeed(
                 SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), o.getOrConditionList(),

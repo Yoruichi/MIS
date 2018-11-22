@@ -18,7 +18,7 @@ public class BasePo implements Serializable {
 
     @JsonIgnoreProperties(value = {
             "conditionFieldList",
-//            "groupByField",
+            //            "groupByField",
             "orderByField",
             "asc",
             "limit",
@@ -30,10 +30,9 @@ public class BasePo implements Serializable {
     })
 
     @ApiModelProperty(hidden = true)
-//    private Map<String, ConditionField> conditionFieldMap = Maps.newHashMap();
     private Map<String, ConditionField> conditionFieldMap = Maps.newLinkedHashMap();
     //    @ApiModelProperty(hidden = true)
-//    private Set<String> groupByField = Sets.newLinkedHashSet();
+    //    private Set<String> groupByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
     private Set<OrderField> orderByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
@@ -106,10 +105,10 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
-//    public <T extends BasePo> T groupBy(String... fields) {
-//        getGroupByField().addAll(Arrays.asList(fields));
-//        return (T) this;
-//    }
+    //    public <T extends BasePo> T groupBy(String... fields) {
+    //        getGroupByField().addAll(Arrays.asList(fields));
+    //        return (T) this;
+    //    }
 
     public <T extends BasePo> T orderBy(String field, boolean asc) {
         getOrderByField().add(new OrderField(field, asc));
@@ -268,46 +267,18 @@ public class BasePo implements Serializable {
     }
 
     public <T extends BasePo> T in(String field, Object[] o) throws Exception {
-        Field f = this.getClass().getDeclaredField(field);
         getConditionFieldMap()
                 .put(this.getConditionFieldKey(field, CONDITION.IN),
                         new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
                                 .setValues(o));
-//        if (f.getType().equals(String.class)) {
-//            String[] so = new String[o.length];
-//            for (int i = 0; i < o.length; i++) {
-//                so[i] = "'" + o[i].toString() + "'";
-//            }
-//            getConditionFieldMap()
-//                    .put(this.getConditionFieldKey(field, CONDITION.IN),
-//                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-//                                    .setValues(so));
-//        } else {
-//            getConditionFieldMap()
-//                    .put(this.getConditionFieldKey(field, CONDITION.IN),
-//                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-//                                    .setValues(o));
-//        }
         return (T) this;
     }
 
     public <T extends BasePo> T notIn(String field, Object[] o) throws Exception {
-        Field f = this.getClass().getDeclaredField(field);
-        if (f.getType().equals(String.class)) {
-            String[] so = new String[o.length];
-            for (int i = 0; i < o.length; i++) {
-                so[i] = "'" + o[i].toString() + "'";
-            }
-            getConditionFieldMap()
-                    .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
-                            new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
-                                    .setValues(so));
-        } else {
-            getConditionFieldMap()
-                    .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
-                            new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
-                                    .setValues(o));
-        }
+        getConditionFieldMap()
+                .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
+                        new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
+                                .setValues(o));
         return (T) this;
     }
 
@@ -367,14 +338,14 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
-//    public Set<String> getGroupByField() {
-//        return groupByField;
-//    }
-//
-//    public <T extends BasePo> T setGroupByField(Set<String> groupByField) {
-//        this.groupByField = groupByField;
-//        return (T) this;
-//    }
+    //    public Set<String> getGroupByField() {
+    //        return groupByField;
+    //    }
+    //
+    //    public <T extends BasePo> T setGroupByField(Set<String> groupByField) {
+    //        this.groupByField = groupByField;
+    //        return (T) this;
+    //    }
 
     public Set<OrderField> getOrderByField() {
         return orderByField;
@@ -407,8 +378,18 @@ public class BasePo implements Serializable {
     }
 
     public enum CONDITION {
-        GT(">"), EQ("="), LT("<"), GTE(">="), LTE("<="), IN("in"), IS_NULL("is null"), IS_NOT_NULL(
-                "is not null"), NE("<>"), NOT_IN("not in"), LIKE("like");
+        GT(">"),
+        EQ("="),
+        LT("<"),
+        GTE(">="),
+        LTE("<="),
+        IN("in"),
+        IS_NULL("is null"),
+        IS_NOT_NULL(
+                "is not null"),
+        NE("<>"),
+        NOT_IN("not in"),
+        LIKE("like");
         private String sign;
 
         CONDITION(String sign) {

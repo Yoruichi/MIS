@@ -33,7 +33,9 @@ public class InsertOrUpdateNeed {
             }
         }
         obs.addAll(obss);
-        if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
+        if (inc.size() == 0) {
+            throw new Exception("Object has no valid value,please check.");
+        }
         return new InsertOrUpdateNeed(SqlBuilder.getInsertOrUpdateSql(clazz, inc), obs.toArray());
     }
 }

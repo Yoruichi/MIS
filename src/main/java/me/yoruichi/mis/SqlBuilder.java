@@ -150,8 +150,6 @@ public class SqlBuilder {
                         Arrays.stream(cf.getValues()).forEach(a -> {
                             sb.append("?, ");
                         });
-//                                .append(values.substring(1, values.length() - 1))
-//                                .append(")");
                         sb.replace(sb.length() - 2, sb.length() - 1, ")");
                         break;
                     case IS_NULL:

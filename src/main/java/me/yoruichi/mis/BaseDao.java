@@ -34,29 +34,32 @@ public abstract class BaseDao<T extends BasePo> {
     protected Cache<String, Optional<Object>> customCache;
 
     protected Cache<String, Optional<T>> getSelectOneCache() {
-        if (selectOneCache == null)
+        if (selectOneCache == null) {
             selectOneCache =
                     CacheBuilder.newBuilder().maximumSize(getCacheSize())
                             .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit())
                             .build();
+        }
         return selectOneCache;
     }
 
     protected Cache<String, Optional<List<T>>> getSelectManyCache() {
-        if (selectManyCache == null)
+        if (selectManyCache == null) {
             selectManyCache =
                     CacheBuilder.newBuilder().maximumWeight(getCacheSize()).weigher(
                             (Weigher<String, Optional<List<T>>>) (key, value) -> value.get().size())
                             .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit()).build();
+        }
         return selectManyCache;
     }
 
     protected Cache<String, Optional<Object>> getCustomCache() {
-        if (customCache == null)
+        if (customCache == null) {
             customCache =
                     CacheBuilder.newBuilder().maximumSize(getCacheSize())
                             .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit())
                             .build();
+        }
         return customCache;
     }
 
@@ -100,10 +103,12 @@ public abstract class BaseDao<T extends BasePo> {
     };
 
     public void flushCache() {
-        if (selectOneCache != null)
+        if (selectOneCache != null) {
             selectOneCache.invalidateAll();
-        if (selectManyCache != null)
+        }
+        if (selectManyCache != null) {
             selectManyCache.invalidateAll();
+        }
     }
 
     public int updateOne(T o) throws Exception {
@@ -120,7 +125,8 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] updateMany(List<T> list) throws Exception {
         try {
             UpdateManyNeed ind = UpdateManyNeed.getUpdateManyNeed(list);
-            logger.debug("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get(), list);
+            logger.debug("running:{} with args{} based on list {}", ind.sql,
+                    ind.args.stream().map(Arrays::toString).reduce((a, b) -> Joiner.on(":").join(a, b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert po list{}.Caused by:{}", list, e);
@@ -160,29 +166,14 @@ public abstract class BaseDao<T extends BasePo> {
     }
 
     public int insertOneGetId(T o) throws Exception {
-        try {
-            InsertOneNeed ind = InsertOneNeed.getInsertOneNeed(o);
-            logger.debug("running:{} with args{} based on po {}", ind.sql, Arrays.toString(ind.args), o);
-            KeyHolder keyHolder = new GeneratedKeyHolder();
-            getTemplate().update(con -> {
-                PreparedStatement ps =
-                        con.prepareStatement(ind.sql, Statement.RETURN_GENERATED_KEYS);
-                for (int i = 0; i < ind.args.length; i++) {
-                    ps.setObject((i + 1), ind.args[i]);
-                }
-                return ps;
-            }, keyHolder);
-            return keyHolder.getKey().intValue();
-        } catch (Exception e) {
-            logger.error("Error when insert po class{}.Caused by:{}", o, e);
-            throw e;
-        }
+        return (int) insertOneGetLongId(o);
     }
 
     public int[] insertMany(List<T> list) throws Exception {
         try {
             InsertManyNeed ind = InsertManyNeed.getInsertManyNeed(list);
-            logger.debug("running:{} with args{} based on list {}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get(), list);
+            logger.debug("running:{} with args{} based on list {}", ind.sql,
+                    ind.args.stream().map(Arrays::toString).reduce((a, b) -> Joiner.on(":").join(a, b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
             logger.error("Error when insert list of {}.Caused by:", list, e);
@@ -204,7 +195,8 @@ public abstract class BaseDao<T extends BasePo> {
     public int[] insertOrUpdateMany(List<T> list) throws Exception {
         try {
             InsertOrUpdateNeedMany ind = InsertOrUpdateNeedMany.getInsertOrUpdateNeedMany(list);
-            logger.debug("running:{} with args{} based on class{}", ind.sql, ind.args.stream().map(Arrays::toString).reduce((a,b)-> Joiner.on(":").join(a,b)).get()
+            logger.debug("running:{} with args{} based on class{}", ind.sql,
+                    ind.args.stream().map(Arrays::toString).reduce((a, b) -> Joiner.on(":").join(a, b)).get()
                     , list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
@@ -243,13 +235,17 @@ public abstract class BaseDao<T extends BasePo> {
 
     public T selectHeadOfMany(T o) throws Exception {
         List<T> list = this.selectMany(o);
-        if (list.size() > 0) return list.get(0);
+        if (list.size() > 0) {
+            return list.get(0);
+        }
         return null;
     }
 
     public T selectOneOfMany(T o, int index) throws Exception {
         List<T> list = this.selectMany(o);
-        if (list.size() > index) return list.get(index);
+        if (list.size() > index) {
+            return list.get(index);
+        }
         return null;
     }
 
@@ -263,8 +259,11 @@ public abstract class BaseDao<T extends BasePo> {
                         logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
                                 Arrays.toString(sed.args));
                         List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
-                        if (l.size() > 0) return Optional.ofNullable(l.get(0));
-                        else return Optional.empty();
+                        if (l.size() > 0) {
+                            return Optional.ofNullable(l.get(0));
+                        } else {
+                            return Optional.empty();
+                        }
                     });
                     if (op.isPresent()) {
                         t = op.get();
@@ -277,7 +276,9 @@ public abstract class BaseDao<T extends BasePo> {
                 }
             } else {
                 List<T> l = getTemplate().query(sed.sql, sed.args, rseList);
-                if (l.size() > 0) t = l.get(0);
+                if (l.size() > 0) {
+                    t = l.get(0);
+                }
                 logger.debug("running:{} with args{} based on class{} got result{}", sed.sql,
                         Arrays.toString(sed.args), o, t);
             }
@@ -306,24 +307,25 @@ public abstract class BaseDao<T extends BasePo> {
 
     public <R extends Object> R doMethod(Function<T, R> function, T t, String key) {
         R r = null;
-        if (t.isUseCache()) try {
-            Optional<Object> op = getCustomCache().get(key, () -> {
-                logger.debug(
-                        "No found value with key {} in cache and will run function {} with parameter {}",
-                        key, function.getClass().getName(), t);
-                return Optional.ofNullable(function.apply(t));
-            });
-            if (op.isPresent()) {
-                r = (R) op.get();
-                logger.debug("Get result {} from cache with key {}", r, key);
-            } else {
-                logger.warn("Warn! Get NULL result from cache with key {}", key);
+        if (t.isUseCache()) {
+            try {
+                Optional<Object> op = getCustomCache().get(key, () -> {
+                    logger.debug(
+                            "No found value with key {} in cache and will run function {} with parameter {}",
+                            key, function.getClass().getName(), t);
+                    return Optional.ofNullable(function.apply(t));
+                });
+                if (op.isPresent()) {
+                    r = (R) op.get();
+                    logger.debug("Get result {} from cache with key {}", r, key);
+                } else {
+                    logger.warn("Warn! Get NULL result from cache with key {}", key);
+                }
+            } catch (ExecutionException e) {
+                logger.error("Error!When run function {} with parameter {}", function, t);
+                e.printStackTrace();
             }
-        } catch (ExecutionException e) {
-            logger.error("Error!When run function {} with parameter {}", function, t);
-            e.printStackTrace();
-        }
-        else {
+        } else {
             r = function.apply(t);
         }
         return r;

@@ -1,6 +1,7 @@
 package me.yoruichi.mis.test;
 
 import com.google.common.collect.Lists;
+import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
 import org.junit.Assert;
