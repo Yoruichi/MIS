@@ -45,60 +45,78 @@ public class Test {
     public void test() {
         Foo foo = new Foo();
         fooDao.getTemplate().update("delete from foo");
-        foo.setName("testA").setAge(22);
+        foo.setName("testA").setAge(20);
         try {
             //test insert
+            System.out.println("test insert. Will insert 3 records.");
             fooDao.insertOne(foo);
             fooDao.insertOne(foo);
             long id = fooDao.insertOneGetLongId(foo);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
+            //test insert or update
+            System.out.println("test insert or update. Will update records with id 3.");
             foo.setId(id);
             foo.setAge(27);
             foo.setName("testB");
             foo.setGender(false);
             fooDao.insertOrUpdate(foo);
             //test select
+            System.out.println("test select. Query records with name in {'testA', 'testB'}");
             Foo f = new Foo();
             f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
+
+            System.out.println("test select. Query records with age > 22");
             Foo f1 = new Foo();
             f1.gt("age", 22);
             Assert.assertEquals("testB", fooDao.select(f1).getName());
+
+            System.out.println("test select. Query records with age in (20, 22)");
             Foo f2 = new Foo();
-            f2.in("age", new Integer[] {22, 27});
-            Assert.assertEquals(3, fooDao.selectMany(f).size());
-            Assert.assertEquals(3, fooDao.selectMany(f.or(f1).or(f2)).size());
+            f2.in("age", new Integer[] {20, 22});
+            Assert.assertEquals(2, fooDao.selectMany(f2).size());
+
+            System.out.println("test select. Query records with name equals 'testB' or age > 22 or age in (20, 22)");
+            Assert.assertEquals(3, fooDao.selectMany(new Foo().setName("testB").or(f1).or(f2)).size());
+
             //test cache
             System.out.println("test cache");
             Foo f3 = new Foo();
-            f3.gte("age", 22).lt("age", 30);
+            f3.gte("age", 20).lt("age", 30);
             Assert.assertEquals(3, fooDao.selectMany(f3).size());
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
             fooDao.flushCache();
             Assert.assertEquals(3, fooDao.selectMany(f3.withCache()).size());
-            Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
-            Assert.assertEquals(22, fooDao.select(f3.withCache()).getAge().intValue());
+            Assert.assertEquals(20, fooDao.select(f3.withCache()).getAge().intValue());
+            Assert.assertEquals(20, fooDao.select(f3.withCache()).getAge().intValue());
             Assert.assertEquals(null, fooDao.select(new Foo().setAge(1).withCache()));
-            //test update
-            System.out.println("test for update");
-            f1.update("email", "whatever@google.com").gt("age", 0)
-                    .or(new Foo().lt("age", 30).and(new Foo().setGender(false)));
-            fooDao.updateOne(f1);
 
+            //test update
+            System.out.println("test update email where age > 20 or (age < 25 and gender = 0)");
+            Foo records = new Foo().update("email", "whatever@google.com").gt("age", 20)
+                    .or(new Foo().lt("age", 25).and(new Foo().setGender(true)));
+            fooDao.updateOne(records);
+            System.out.println("test update gender = 1 where age = 27 and update gender=0 where age = 22");
             Foo ff = new Foo().setAge(27).update("gender", true);
-            Foo ff1 = new Foo().setAge(22).update("gender", false);
+            Foo ff1 = new Foo().setAge(20).update("gender", false);
             fooDao.updateMany(Lists.newArrayList(ff, ff1));
             Assert.assertEquals(false, fooDao.select(ff1).getGender());
+
+            System.out.println("test select records where gender = 1 order by id asc");
             foo = new Foo();
             foo.setGender(true).orderBy("id").setAsc();
             List<Foo> fl = fooDao.selectMany(foo);
             fl.stream().forEach(foo1 -> foo1.setGender(false));
+            System.out.println("update set gender = 0 for all records");
             fooDao.insertOrUpdateMany(fl);
             foo.setGender(false);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
+
+            System.out.println("test select records where email like %@google.com");
             List<Foo> fll = fooDao.selectMany(new Foo().like("email", "%@google.com"));
             Assert.assertEquals(3, fll.size());
+
             //test custom method
             fooDao.selectFooCustom(foo);
             fooDao.doMethod(fooDao::selectFooCustom, foo.withCache(), foo.toString());
@@ -106,12 +124,13 @@ public class Test {
             //test and/or
             System.out.println("test for and/or");
             Assert.assertEquals(3,
-                    fooDao.selectMany(new Foo().setAge(22).or(new Foo().setAge(27))).size());
+                    fooDao.selectMany(new Foo().setAge(20).or(new Foo().setAge(27))).size());
             Assert.assertEquals(0,
                     fooDao.selectMany(new Foo().setAge(22).and(new Foo().setAge(27))).size());
             Assert.assertEquals(2, fooDao.selectMany(
-                    new Foo().setAge(22).and(new Foo().setAge(27).or(new Foo().gt("age", 0))))
+                    new Foo().setAge(20).and(new Foo().setAge(27).or(new Foo().gt("age", 0))))
                     .size());
+
             System.out.println("test for count");
             Long size = fooDao.selectCount(new Foo());
             Assert.assertEquals(3L, size.longValue());
