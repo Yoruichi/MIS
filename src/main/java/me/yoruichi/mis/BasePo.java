@@ -14,11 +14,13 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+/**
+ * @author apple
+ */
 public class BasePo implements Serializable {
 
     @JsonIgnoreProperties(value = {
             "conditionFieldList",
-            //            "groupByField",
             "orderByField",
             "asc",
             "limit",
@@ -31,8 +33,6 @@ public class BasePo implements Serializable {
 
     @ApiModelProperty(hidden = true)
     private Map<String, ConditionField> conditionFieldMap = Maps.newLinkedHashMap();
-    //    @ApiModelProperty(hidden = true)
-    //    private Set<String> groupByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
     private Set<OrderField> orderByField = Sets.newLinkedHashSet();
     @ApiModelProperty(hidden = true)
@@ -104,11 +104,6 @@ public class BasePo implements Serializable {
         this.andConditionList.add(other.ready());
         return (T) this;
     }
-
-    //    public <T extends BasePo> T groupBy(String... fields) {
-    //        getGroupByField().addAll(Arrays.asList(fields));
-    //        return (T) this;
-    //    }
 
     public <T extends BasePo> T orderBy(String field, boolean asc) {
         getOrderByField().add(new OrderField(field, asc));
