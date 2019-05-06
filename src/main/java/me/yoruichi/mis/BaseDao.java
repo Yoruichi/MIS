@@ -14,6 +14,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
 import java.sql.PreparedStatement;
 import java.sql.Statement;
 import java.util.Arrays;
@@ -23,13 +24,19 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
+/**
+ * @author apple
+ */
 public abstract class BaseDao<T extends BasePo> {
 
-    protected final Logger logger = LoggerFactory.getLogger(BaseDao.class.getPackage().getName());
+    protected final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    protected abstract Class<T> getEntityClass();
+    protected Class<T> getEntityClass() {
+        return (Class<T>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
+    }
 
     protected Cache<String, Optional<T>> selectOneCache;
+    protected Cache<String, Optional<Long>> selectCountCache;
     protected Cache<String, Optional<List<T>>> selectManyCache;
     protected Cache<String, Optional<Object>> customCache;
 
@@ -41,6 +48,16 @@ public abstract class BaseDao<T extends BasePo> {
                             .build();
         }
         return selectOneCache;
+    }
+
+    protected Cache<String, Optional<Long>> getSelectCountCache() {
+        if (selectCountCache == null) {
+            selectCountCache =
+                    CacheBuilder.newBuilder().maximumSize(getCacheSize())
+                            .expireAfterWrite(getCacheExpire(), getCacheExpireTimeUnit())
+                            .build();
+        }
+        return selectCountCache;
     }
 
     protected Cache<String, Optional<List<T>>> getSelectManyCache() {
@@ -129,7 +146,7 @@ public abstract class BaseDao<T extends BasePo> {
                     ind.args.stream().map(Arrays::toString).reduce((a, b) -> Joiner.on(":").join(a, b)).get(), list);
             return getTemplate().batchUpdate(ind.sql, ind.args);
         } catch (Exception e) {
-            logger.error("Error when insert po list{}.Caused by:{}", list, e);
+            logger.error("Error when update po list{}.Caused by:{}", list, e);
             throw e;
         }
     }
@@ -247,6 +264,39 @@ public abstract class BaseDao<T extends BasePo> {
             return list.get(index);
         }
         return null;
+    }
+
+    public Long selectCount(T o) throws Exception {
+        Long size = 0L;
+        try {
+            SelectNeed sed = SelectNeed.getSelectCountNeed(o);
+            if (o.isUseCache()) {
+                try {
+                    Optional<Long> op = getSelectCountCache().get(sed.toString(), () -> {
+                        logger.debug("No found in cache and will run sql {} with args {}", sed.sql,
+                                Arrays.toString(sed.args));
+                        Long s = getTemplate().queryForObject(sed.sql, sed.args, Long.class);
+                        return Optional.ofNullable(s);
+                    });
+                    if (op.isPresent()) {
+                        size = op.get();
+                        logger.debug("Get result {} from cache with key {}", size, sed);
+                    } else {
+                        logger.warn("Warn! Get NULL result from cache with key {}", sed);
+                    }
+                } catch (ExecutionException e) {
+                    logger.warn("Warn! Get result from cache with key {}, Caused by:", sed, e);
+                }
+            } else {
+                size = getTemplate().queryForObject(sed.sql, sed.args, Long.class);
+                logger.debug("running:{} with args{} based on class{} got result{}", sed.sql,
+                        Arrays.toString(sed.args), o, size);
+            }
+        } catch (Exception e) {
+            logger.error("Error when select one of class{}.Caused by {}", o, e);
+            throw e;
+        }
+        return size;
     }
 
     public T select(T o) throws Exception {

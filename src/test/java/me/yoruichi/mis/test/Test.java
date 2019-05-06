@@ -45,12 +45,12 @@ public class Test {
     public void test() {
         Foo foo = new Foo();
         fooDao.getTemplate().update("delete from foo");
-        foo.setName("testA");
+        foo.setName("testA").setAge(22);
         try {
             //test insert
             fooDao.insertOne(foo);
             fooDao.insertOne(foo);
-            int id = fooDao.insertOneGetId(foo);
+            long id = fooDao.insertOneGetLongId(foo);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
             foo.setId(id);
             foo.setAge(27);
@@ -85,8 +85,7 @@ public class Test {
             f1.update("email", "whatever@google.com").gt("age", 0)
                     .or(new Foo().lt("age", 30).and(new Foo().setGender(false)));
             fooDao.updateOne(f1);
-            f.update("gender", true);
-            fooDao.updateMany(Lists.newArrayList(f, f2));
+
             Foo ff = new Foo().setAge(27).update("gender", true);
             Foo ff1 = new Foo().setAge(22).update("gender", false);
             fooDao.updateMany(Lists.newArrayList(ff, ff1));
@@ -113,6 +112,9 @@ public class Test {
             Assert.assertEquals(2, fooDao.selectMany(
                     new Foo().setAge(22).and(new Foo().setAge(27).or(new Foo().gt("age", 0))))
                     .size());
+            System.out.println("test for count");
+            Long size = fooDao.selectCount(new Foo());
+            Assert.assertEquals(3L, size.longValue());
         } catch (Exception e) {
             e.printStackTrace();
         }

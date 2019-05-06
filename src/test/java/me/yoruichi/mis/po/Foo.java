@@ -8,7 +8,7 @@ import me.yoruichi.mis.BasePo;
 public class Foo extends BasePo {
     private String name;
     private Integer age;
-    private Integer id;
+    private Long id;
     private Boolean gender;
     private String email;
 
@@ -41,11 +41,11 @@ public class Foo extends BasePo {
         return this;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
-    public Foo setId(Integer id) {
+    public Foo setId(Long id) {
         this.id = id;
         return this;
     }
@@ -67,4 +67,5 @@ public class Foo extends BasePo {
         this.email = email;
         return this;
     }
+
 }

@@ -6,7 +6,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Created by yoruichi on 16/12/27.
+ *
+ * @author yoruichi
+ * @date 16/12/27
  */
 public class InsertOrUpdateNeedMany {
     public String sql;
@@ -17,8 +19,10 @@ public class InsertOrUpdateNeedMany {
         this.args = args;
     }
 
-    public static InsertOrUpdateNeedMany getInsertOrUpdateNeedMany(List<? extends BasePo> os)
-            throws Exception {
+    public static InsertOrUpdateNeedMany getInsertOrUpdateNeedMany(List<? extends BasePo> os) throws Exception {
+        if (null == os || os.size() == 0) {
+            throw new Exception("There is no value to process.");
+        }
         List<Object[]> args = Lists.newLinkedList();
         List<Field> inc = Lists.newLinkedList();
         Class<? extends BasePo> clazz = os.get(0).getClass();
@@ -47,6 +51,6 @@ public class InsertOrUpdateNeedMany {
             obs.addAll(obss);
             args.add(obs.toArray());
         }
-        return new InsertOrUpdateNeedMany(SqlBuilder.getInsertOrUpdateSql(clazz, inc), args);
+        return new InsertOrUpdateNeedMany(SqlBuilder.getInsertOrUpdateSql(clazz, inc, os.get(0).getTableName()), args);
     }
 }

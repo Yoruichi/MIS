@@ -6,7 +6,9 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Created by yoruichi on 16/10/25.
+ *
+ * @author yoruichi
+ * @date 16/10/25
  */
 public class InsertManyNeed {
     public String sql;
@@ -18,6 +20,9 @@ public class InsertManyNeed {
     }
 
     public static InsertManyNeed getInsertManyNeed(List<? extends BasePo> os) throws Exception {
+        if (null == os || os.size() == 0) {
+            throw new Exception("There is no value to process.");
+        }
         List<Object[]> args = Lists.newLinkedList();
         List<Field> inc = Lists.newLinkedList();
         Class<? extends BasePo> clazz = os.get(0).getClass();
@@ -47,6 +52,6 @@ public class InsertManyNeed {
                 throw new Exception("Wrong class type in parameter given,please check.");
             }
         }
-        return new InsertManyNeed(SqlBuilder.getInsertSql(clazz, inc), args);
+        return new InsertManyNeed(SqlBuilder.getInsertSql(clazz, inc, os.get(0).getTableName()), args);
     }
 }

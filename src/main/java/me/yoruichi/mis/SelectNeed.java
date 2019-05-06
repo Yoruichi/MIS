@@ -8,7 +8,8 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * Created by yoruichi on 16/10/25.
+ * @author yoruichi
+ * @date 16/10/25
  */
 public class SelectNeed {
     public String sql;
@@ -31,6 +32,9 @@ public class SelectNeed {
     }
 
     public static SelectNeed getSelectOneNeed(BasePo o) throws Exception {
+        if (null == o) {
+            throw new Exception("There is no value to process.");
+        }
         Class<? extends BasePo> clazz = o.getClass();
         Field[] fs = clazz.getDeclaredFields();
         String[] includeFields = new String[fs.length];
@@ -40,46 +44,33 @@ public class SelectNeed {
         return getSelectOneNeed(o, includeFields, o.isForUpdate());
     }
 
-    public static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields, boolean isForUpdate)
-            throws Exception {
+    private static SelectNeed getSelectOneNeed(BasePo o, String[] includeFields, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
         List<Field> inc = Lists.newLinkedList();
-        for (int i = 0; i < includeFields.length; i++)
+        for (int i = 0; i < includeFields.length; i++) {
             inc.add(clazz.getDeclaredField(includeFields[i]));
-        if (inc.size() == 0) throw new Exception("Object has no valid value,please check.");
+        }
+        if (inc.size() == 0) {
+            throw new Exception("Object has no valid value,please check.");
+        }
         o.ready();
-        return new SelectNeed(
-                SqlBuilder
-                        .getSelectOneSql(clazz, o.getConditionFieldList(), o.getOrConditionList(),
-                                o.getAndConditionList(), inc, isForUpdate),
+        return new SelectNeed(SqlBuilder
+                .getSelectOneSql(clazz, o.getTableName(), o.getConditionFieldList(), o.getOrConditionList(), o.getAndConditionList(), inc, isForUpdate),
+                getSelectArgs(o));
+    }
+
+    public static SelectNeed getSelectCountNeed(BasePo o) throws Exception {
+        if (null == o) {
+            throw new Exception("There is no value to process.");
+        }
+        Class<? extends BasePo> clazz = o.getClass();
+        o.ready();
+        return new SelectNeed(SqlBuilder.getSelectCountSql(clazz, o.getTableName(), o.getConditionFieldList(), o.getOrConditionList(), o.getAndConditionList()),
                 getSelectArgs(o));
     }
 
     private static Object[] getSelectArgs(BasePo o) {
-        List<Object> obs = Lists.newLinkedList();
-        o.getConditionFieldList().stream()
-                .forEach(cf -> {
-                            switch (cf.getCondition()) {
-                                case IN:
-                                case NOT_IN:
-                                    obs.addAll(Arrays.asList(cf.getValues()));
-                                    break;
-                                case IS_NULL:
-                                case IS_NOT_NULL:
-                                    break;
-                                default:
-                                    obs.add(cf.getValue());
-                                    break;
-                            }
-                        }
-                );
-//        obs.addAll(o.getConditionFieldList().stream()
-//                .filter(cf ->
-//                        cf.getCondition() != BasePo.CONDITION.IN
-//                        && cf.getCondition() != BasePo.CONDITION.NOT_IN &&
-//                         cf.getCondition() != BasePo.CONDITION.IS_NULL
-//                        && cf.getCondition() != BasePo.CONDITION.IS_NOT_NULL)
-//                .map(ConditionField::getValue).collect(Collectors.toList()));
+        List<Object> obs = prepareConditionFieldListForPo(o);
         o.getOrConditionList().stream().forEach(oo ->
                 obs.addAll(Arrays.asList(getSelectArgs(oo)))
         );
@@ -89,18 +80,41 @@ public class SelectNeed {
         return obs.toArray();
     }
 
+    static List<Object> prepareConditionFieldListForPo(BasePo o) {
+        List<Object> obs = Lists.newLinkedList();
+        o.getConditionFieldList().stream()
+                .forEach(cf -> {
+                            switch (cf.getCondition()) {
+                            case IN:
+                            case NOT_IN:
+                                obs.addAll(Arrays.asList(cf.getValues()));
+                                break;
+                            case IS_NULL:
+                            case IS_NOT_NULL:
+                                break;
+                            default:
+                                obs.add(cf.getValue());
+                                break;
+                            }
+                        }
+                );
+        return obs;
+    }
+
     public static SelectNeed getSelectManyNeed(BasePo o) throws Exception {
+        if (null == o) {
+            throw new Exception("There is no value to process.");
+        }
         Class<? extends BasePo> clazz = o.getClass();
         Field[] fs = clazz.getDeclaredFields();
         String[] includeFields = new String[fs.length];
         for (int i = 0; i < fs.length; i++) {
             includeFields[i] = fs[i].getName();
         }
-        return getSelectManyNeed(o, includeFields, o.getOrderByField(), o.isAsc(), o.getLimit(),
-                o.getIndex(), o.isForUpdate());
+        return getSelectManyNeed(o, includeFields, o.getOrderByField(), o.isAsc(), o.getLimit(), o.getIndex(), o.isForUpdate());
     }
 
-    public static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields,
+    private static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields,
             Collection<OrderField> orderByFields,
             boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
@@ -112,10 +126,8 @@ public class SelectNeed {
             throw new Exception("Object has no valid value,please check.");
         }
         o.ready();
-        return new SelectNeed(
-                SqlBuilder.getSelectSql(clazz, o.getConditionFieldList(), o.getOrConditionList(),
-                        o.getAndConditionList(), inc, orderByFields, asc, limit, index,
-                        isForUpdate),
-                getSelectArgs(o));
+        return new SelectNeed(SqlBuilder
+                .getSelectSql(clazz, o.getTableName(), o.getConditionFieldList(), o.getOrConditionList(), o.getAndConditionList(), inc, orderByFields, asc,
+                        limit, index, isForUpdate), getSelectArgs(o));
     }
 }

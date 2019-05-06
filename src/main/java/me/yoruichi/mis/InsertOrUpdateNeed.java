@@ -6,7 +6,8 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- * Created by yoruichi on 16/10/25.
+ * @author yoruichi
+ * @date 16/10/25
  */
 public class InsertOrUpdateNeed {
     public String sql;
@@ -18,6 +19,9 @@ public class InsertOrUpdateNeed {
     }
 
     public static InsertOrUpdateNeed getInsertOrUpdateNeed(BasePo o) throws Exception {
+        if (null == o) {
+            throw new Exception("There is no value to process.");
+        }
         Class<? extends BasePo> clazz = o.getClass();
         Field[] fs = clazz.getDeclaredFields();
         List<Field> inc = Lists.newLinkedList();
@@ -36,6 +40,6 @@ public class InsertOrUpdateNeed {
         if (inc.size() == 0) {
             throw new Exception("Object has no valid value,please check.");
         }
-        return new InsertOrUpdateNeed(SqlBuilder.getInsertOrUpdateSql(clazz, inc), obs.toArray());
+        return new InsertOrUpdateNeed(SqlBuilder.getInsertOrUpdateSql(clazz, inc, o.getTableName()), obs.toArray());
     }
 }

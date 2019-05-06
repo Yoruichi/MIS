@@ -418,6 +418,15 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
+    /**
+     * Should be override if sharding table
+     *
+     * @return
+     */
+    public String getTableName() {
+        return SqlBuilder.getDbName(getClass().getSimpleName());
+    }
+
     private String getConditionFieldKey(String field, CONDITION condition) {
         return field + ":" + condition.getSign();
     }

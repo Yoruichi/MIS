@@ -18,10 +18,10 @@ public class FooDao extends BaseDao<Foo> {
 //    @Qualifier("secondaryJdbcTemplate")
 //    private JdbcTemplate jdbcTemplate;
 
-    @Override
-    protected Class<Foo> getEntityClass() {
-        return Foo.class;
-    }
+//    @Override
+//    protected Class<Foo> getEntityClass() {
+//        return Foo.class;
+//    }
 
 //    @Override
 //    public JdbcTemplate getJdbcTemplate() {
