@@ -10,7 +10,7 @@
       比如类的成员变量名为id对应字段名为id，成员变量名为chineseScore对应字段名为chinese_score。
 
 ### Generator
-   点击[这里](/mis-generator-0.0.1-bundle.tar.gz) 
+   点击[这里](/Yoruichi/mis-generator-0.0.1-bundle.tar.gz) 
 
 ## Model类使用
    
