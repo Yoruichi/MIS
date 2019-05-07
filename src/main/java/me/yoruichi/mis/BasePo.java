@@ -1,10 +1,10 @@
 package me.yoruichi.mis;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+//import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import io.swagger.annotations.ApiModelProperty;
+//import io.swagger.annotations.ApiModelProperty;
 
 import java.io.Serializable;
 import java.lang.reflect.Field;
@@ -19,37 +19,37 @@ import java.util.stream.Collectors;
  */
 public class BasePo implements Serializable {
 
-    @JsonIgnoreProperties(value = {
-            "conditionFieldList",
-            "orderByField",
-            "asc",
-            "limit",
-            "index",
-            "forUpdate",
-            "orConditionList",
-            "updateFieldMap",
-            "useCache",
-    })
+//    @JsonIgnoreProperties(value = {
+//            "conditionFieldList",
+//            "orderByField",
+//            "asc",
+//            "limit",
+//            "index",
+//            "forUpdate",
+//            "orConditionList",
+//            "updateFieldMap",
+//            "useCache",
+//    })
 
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private Map<String, ConditionField> conditionFieldMap = Maps.newLinkedHashMap();
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private Set<OrderField> orderByField = Sets.newLinkedHashSet();
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private boolean asc;
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private int limit;
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private int index;
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private boolean forUpdate;
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private Map<Field, Object> updateFieldMap = Maps.newLinkedHashMap();
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private List<BasePo> orConditionList = Lists.newLinkedList();
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private List<BasePo> andConditionList = Lists.newLinkedList();
-    @ApiModelProperty(hidden = true)
+//    @ApiModelProperty(hidden = true)
     private boolean useCache = false;
 
     public Map<Field, Object> getUpdateFieldMap() {
