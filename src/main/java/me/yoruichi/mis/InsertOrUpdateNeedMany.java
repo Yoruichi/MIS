@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- *
  * @author yoruichi
  * @date 16/12/27
  */
@@ -44,8 +43,9 @@ public class InsertOrUpdateNeedMany {
                 f.setAccessible(true);
                 Object v = f.get(o);
                 if (v != null) {
-                    obs.add(v);
-                    obss.add(v);
+                    Object value = CommonUtil.getFieldValue(f, v);
+                    obs.add(value);
+                    obss.add(value);
                 }
             }
             obs.addAll(obss);

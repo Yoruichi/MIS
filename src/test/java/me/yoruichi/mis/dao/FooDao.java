@@ -2,15 +2,11 @@ package me.yoruichi.mis.dao;
 
 import me.yoruichi.mis.BaseDao;
 import me.yoruichi.mis.po.Foo;
+import me.yoruichi.mis.po.Gender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.stereotype.Repository;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
 
 /**
  * Created by yoruichi on 16/10/26.
@@ -30,6 +26,11 @@ public class FooDao extends BaseDao<Foo> {
     public JdbcTemplate getJdbcTemplate() {
         return jdbcTemplate;
     }
+
+//    @Override
+//    protected void initFieldProcessingMap() {
+//        fieldProcessingMap.put(Gender.class, (code) -> Gender.codeOf((int) code));
+//    }
 
     @Override
     public int getCacheSize() {

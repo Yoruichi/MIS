@@ -5,6 +5,7 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.Weigher;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,10 +16,13 @@ import org.springframework.jdbc.support.KeyHolder;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
-import java.sql.PreparedStatement;
-import java.sql.Statement;
+import java.sql.*;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -95,7 +99,14 @@ public abstract class BaseDao<T extends BasePo> {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    protected Map<Class, Function> fieldProcessingMap = Maps.newHashMap();
+
+    protected void initFieldProcessingMap() {
+        //customFieldProcessingMap.put(fieldClazz, function);
+    }
+
     protected final ResultSetExtractor<List<T>> rseList = rs -> {
+        initFieldProcessingMap();
         List<T> l = Lists.newLinkedList();
         Class<T> clazz = getEntityClass();
         try {
@@ -107,7 +118,21 @@ public abstract class BaseDao<T extends BasePo> {
                             rs.findColumn(SqlBuilder.getDbName(fields[j].getName()));
                     if (columnIndex > -1) {
                         fields[j].setAccessible(true);
-                        fields[j].set(i, rs.getObject(columnIndex));
+                        if (fieldProcessingMap.containsKey(fields[j].getType())) {
+                            fields[j].set(i, fieldProcessingMap.get(fields[j].getType()).apply(rs.getObject(columnIndex)));
+                        } else if (fields[j].getType().equals(LocalDateTime.class)) {
+                            Timestamp rowData = rs.getTimestamp(columnIndex);
+                            fields[j].set(i, rowData.toLocalDateTime());
+                        } else if (fields[j].getType().equals(LocalDate.class)) {
+                            Date rowData = rs.getDate(columnIndex);
+                            fields[j].set(i, rowData.toLocalDate());
+                        } else if (fields[j].getType().equals(LocalTime.class)) {
+                            Time rowData = rs.getTime(columnIndex);
+                            fields[j].set(i, rowData.toLocalTime());
+                        } else {
+                            Object value = CommonUtil.setFieldValue(fields[j], rs.getObject(columnIndex));
+                            fields[j].set(i, value);
+                        }
                     }
                 }
                 l.add(i);

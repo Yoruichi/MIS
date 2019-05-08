@@ -32,8 +32,9 @@ public class InsertOrUpdateNeed {
             Object v = fs[i].get(o);
             if (v != null) {
                 inc.add(fs[i]);
-                obs.add(v);
-                obss.add(v);
+                Object value = CommonUtil.getFieldValue(fs[i], v);
+                obs.add(value);
+                obss.add(value);
             }
         }
         obs.addAll(obss);

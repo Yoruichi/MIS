@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
 import me.yoruichi.mis.po.Foo;
+import me.yoruichi.mis.po.Gender;
 import org.junit.Assert;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -45,20 +47,20 @@ public class Test {
     public void test() {
         Foo foo = new Foo();
         fooDao.getTemplate().update("delete from foo");
-        foo.setName("testA").setAge(20);
+        foo.setName("testA").setAge(20).setcTime(LocalDateTime.now());
         try {
             //test insert
             System.out.println("test insert. Will insert 3 records.");
             fooDao.insertOne(foo);
             fooDao.insertOne(foo);
             long id = fooDao.insertOneGetLongId(foo);
-            Assert.assertEquals(3, fooDao.selectMany(foo).size());
+            Assert.assertEquals(3, fooDao.selectMany(new Foo().setName("testA")).size());
             //test insert or update
             System.out.println("test insert or update. Will update records with id 3.");
             foo.setId(id);
             foo.setAge(27);
             foo.setName("testB");
-            foo.setGender(false);
+            foo.setGender(Gender.M);
             fooDao.insertOrUpdate(foo);
             //test select
             System.out.println("test select. Query records with name in {'testA', 'testB'}");
@@ -95,22 +97,22 @@ public class Test {
             //test update
             System.out.println("test update email where age > 20 or (age < 25 and gender = 0)");
             Foo records = new Foo().update("email", "whatever@google.com").gt("age", 20)
-                    .or(new Foo().lt("age", 25).and(new Foo().setGender(true)));
+                    .or(new Foo().lt("age", 25).and(new Foo().setGender(Gender.F)));
             fooDao.updateOne(records);
             System.out.println("test update gender = 1 where age = 27 and update gender=0 where age = 22");
-            Foo ff = new Foo().setAge(27).update("gender", true);
-            Foo ff1 = new Foo().setAge(20).update("gender", false);
+            Foo ff = new Foo().setAge(27).update("gender", Gender.F);
+            Foo ff1 = new Foo().setAge(20).update("gender", Gender.M);
             fooDao.updateMany(Lists.newArrayList(ff, ff1));
-            Assert.assertEquals(false, fooDao.select(ff1).getGender());
+            Assert.assertEquals(Gender.M, fooDao.select(ff1).getGender());
 
             System.out.println("test select records where gender = 1 order by id asc");
             foo = new Foo();
-            foo.setGender(true).orderBy("id").setAsc();
+            foo.setGender(Gender.F).orderBy("id").setAsc();
             List<Foo> fl = fooDao.selectMany(foo);
-            fl.stream().forEach(foo1 -> foo1.setGender(false));
+            fl.stream().forEach(foo1 -> foo1.setGender(Gender.M));
             System.out.println("update set gender = 0 for all records");
             fooDao.insertOrUpdateMany(fl);
-            foo.setGender(false);
+            foo.setGender(Gender.M);
             Assert.assertEquals(3, fooDao.selectMany(foo).size());
 
             System.out.println("test select records where email like %@google.com");

@@ -1,6 +1,9 @@
 package me.yoruichi.mis.po;
 
+import me.yoruichi.mis.Alias;
 import me.yoruichi.mis.BasePo;
+
+import java.time.LocalDateTime;
 
 /**
  * Created by yoruichi on 16/10/26.
@@ -9,8 +12,10 @@ public class Foo extends BasePo {
     private String name;
     private Integer age;
     private Long id;
-    private Boolean gender;
+    @Alias
+    private Gender gender;
     private String email;
+    private LocalDateTime cTime;
 
     @Override
     public String toString() {
@@ -50,15 +55,6 @@ public class Foo extends BasePo {
         return this;
     }
 
-    public Boolean getGender() {
-        return gender;
-    }
-
-    public Foo setGender(Boolean gender) {
-        this.gender = gender;
-        return this;
-    }
-
     public String getEmail() {
         return email;
     }
@@ -66,6 +62,24 @@ public class Foo extends BasePo {
     public Foo setEmail(String email) {
         this.email = email;
         return this;
+    }
+
+    public LocalDateTime getcTime() {
+        return cTime;
+    }
+
+    public Foo setcTime(LocalDateTime cTime) {
+        this.cTime = cTime;
+        return this;
+    }
+
+    public Foo setGender(Gender gender) {
+        this.gender = gender;
+        return this;
+    }
+
+    public Gender getGender() {
+        return this.gender;
     }
 
 }

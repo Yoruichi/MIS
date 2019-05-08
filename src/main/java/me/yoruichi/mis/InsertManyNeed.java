@@ -6,7 +6,6 @@ import java.lang.reflect.Field;
 import java.util.List;
 
 /**
- *
  * @author yoruichi
  * @date 16/10/25
  */
@@ -44,7 +43,7 @@ public class InsertManyNeed {
                     fs[i].setAccessible(true);
                     Object v = fs[i].get(o);
                     if (v != null) {
-                        arg.add(v);
+                        arg.add(CommonUtil.getFieldValue(fs[i], v));
                     }
                 }
                 args.add(arg.toArray());

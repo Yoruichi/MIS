@@ -29,6 +29,7 @@ public class ConditionField {
         return value;
     }
 
+
     public ConditionField setValue(Object value) {
         this.value = value;
         return this;

@@ -31,7 +31,18 @@ public class InsertOneNeed {
             Object v = fs[i].get(o);
             if (v != null) {
                 inc.add(fs[i]);
-                obs.add(v);
+                boolean seated = false;
+                Class<?>[] clazzArray = fs[i].getType().getInterfaces();
+                for (int j = 0; j < clazzArray.length; j++) {
+                    if (clazzArray[j].equals(GenericType.class)) {
+                        obs.add(((GenericType) v).getCode());
+                        seated = true;
+                        break;
+                    }
+                }
+                if (!seated) {
+                    obs.add(v);
+                }
             }
         }
         if (inc.size() == 0) {
