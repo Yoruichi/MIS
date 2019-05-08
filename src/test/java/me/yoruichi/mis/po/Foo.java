@@ -1,6 +1,5 @@
 package me.yoruichi.mis.po;
 
-import me.yoruichi.mis.Alias;
 import me.yoruichi.mis.BasePo;
 
 import java.time.LocalDateTime;
@@ -12,7 +11,6 @@ public class Foo extends BasePo {
     private String name;
     private Integer age;
     private Long id;
-    @Alias
     private Gender gender;
     private String email;
     private LocalDateTime cTime;

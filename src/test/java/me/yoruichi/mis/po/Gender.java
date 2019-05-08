@@ -6,7 +6,7 @@ import me.yoruichi.mis.GenericType;
  * @Author: Yoruichi
  * @Date: 2019/5/8 2:00 PM
  */
-public enum Gender  {
+public enum Gender implements GenericType {
     M(0),
     F(1);
 

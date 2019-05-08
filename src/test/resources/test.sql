@@ -1,17 +1,19 @@
 CREATE TABLE IF NOT EXISTS `test`.`foo` (
-  `id` INT unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `gender` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'gender',
-  `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '名称',
-  `email` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'email',
-  `age` int(3) NULL COMMENT 'age',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gender` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'gender',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
+  `email` varchar(64) NOT NULL DEFAULT '' COMMENT 'email',
+  `age` int(3) DEFAULT NULL COMMENT 'age',
+  `c_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB DEFAULT CHARSET=utf8 COMMENT='foo';
 
 CREATE TABLE IF NOT EXISTS `test2`.`foo` (
-  `id` INT unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `gender` TINYINT(1) NOT NULL DEFAULT 1 COMMENT 'gender',
-  `name` VARCHAR(255) NOT NULL DEFAULT '' COMMENT '名称',
-  `email` VARCHAR(64) NOT NULL DEFAULT '' COMMENT 'email',
-  `age` int(3) NULL COMMENT 'age',
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `gender` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'gender',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
+  `email` varchar(64) NOT NULL DEFAULT '' COMMENT 'email',
+  `age` int(3) DEFAULT NULL COMMENT 'age',
+  `c_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
 ENGINE = InnoDB DEFAULT CHARSET=utf8 COMMENT='foo';
