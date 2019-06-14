@@ -17,13 +17,11 @@ import org.springframework.jdbc.support.KeyHolder;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.sql.*;
+import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
@@ -122,16 +120,24 @@ public abstract class BaseDao<T extends BasePo> {
                             fields[j].set(i, fieldProcessingMap.get(fields[j].getType()).apply(rs.getObject(columnIndex)));
                         } else if (fields[j].getType().equals(LocalDateTime.class)) {
                             Timestamp rowData = rs.getTimestamp(columnIndex);
-                            fields[j].set(i, rowData.toLocalDateTime());
+                            if (Objects.nonNull(rowData)) {
+                                fields[j].set(i, rowData.toLocalDateTime());
+                            }
                         } else if (fields[j].getType().equals(LocalDate.class)) {
                             Date rowData = rs.getDate(columnIndex);
-                            fields[j].set(i, rowData.toLocalDate());
+                            if (Objects.nonNull(rowData)) {
+                                fields[j].set(i, rowData.toLocalDate());
+                            }
                         } else if (fields[j].getType().equals(LocalTime.class)) {
                             Time rowData = rs.getTime(columnIndex);
-                            fields[j].set(i, rowData.toLocalTime());
+                            if (Objects.nonNull(rowData)) {
+                                fields[j].set(i, rowData.toLocalTime());
+                            }
                         } else {
-                            Object value = CommonUtil.setFieldValue(fields[j], rs.getObject(columnIndex));
-                            fields[j].set(i, value);
+                            Object value = rs.getObject(columnIndex);
+                            if (Objects.nonNull(value)) {
+                                fields[j].set(i, CommonUtil.setFieldValue(fields[j], value));
+                            }
                         }
                     }
                 }

@@ -12,6 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,6 +53,7 @@ public class Test {
             //test insert
             System.out.println("test insert. Will insert 3 records.");
             fooDao.insertOne(foo);
+            foo.setcTime(null);
             fooDao.insertOne(foo);
             long id = fooDao.insertOneGetLongId(foo);
             Assert.assertEquals(3, fooDao.selectMany(new Foo().setName("testA")).size());
@@ -72,6 +74,11 @@ public class Test {
             Foo f1 = new Foo();
             f1.gt("age", 22);
             Assert.assertEquals("testB", fooDao.select(f1).getName());
+
+            System.out.println("test select. Query records with ctime > yesterday");
+            Foo f0 = new Foo();
+            f0.gt("cTime", LocalDate.now().minusDays(1));
+            Assert.assertEquals("testA", fooDao.select(f0).getName());
 
             System.out.println("test select. Query records with age in (20, 22)");
             Foo f2 = new Foo();
