@@ -263,18 +263,24 @@ public class BasePo implements Serializable {
     }
 
     public <T extends BasePo> T in(String field, Object[] o) throws Exception {
-        getConditionFieldMap()
-                .put(this.getConditionFieldKey(field, CONDITION.IN),
-                        new ConditionField().setFieldName(field).setCondition(CONDITION.IN)
-                                .setValues(o));
+        Field f = this.getClass().getDeclaredField(field);
+        f.setAccessible(true);
+        if (null != o || o.length > 0) {
+            getConditionFieldMap()
+                    .put(this.getConditionFieldKey(field, CONDITION.IN),
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.IN).setValues(CommonUtil.getFieldValue(f, o)));
+        }
         return (T) this;
     }
 
     public <T extends BasePo> T notIn(String field, Object[] o) throws Exception {
-        getConditionFieldMap()
-                .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
-                        new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN)
-                                .setValues(o));
+        Field f = this.getClass().getDeclaredField(field);
+        f.setAccessible(true);
+        if (null != o || o.length > 0) {
+            getConditionFieldMap()
+                    .put(this.getConditionFieldKey(field, CONDITION.NOT_IN),
+                            new ConditionField().setFieldName(field).setCondition(CONDITION.NOT_IN).setValues(CommonUtil.getFieldValue(f, o)));
+        }
         return (T) this;
     }
 

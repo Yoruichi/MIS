@@ -70,6 +70,11 @@ public class Test {
             f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
 
+            System.out.println("test select. Query records with Gender in {M}");
+            Foo f4 = new Foo();
+            f4.in("gender", new Object[] {Gender.M});
+            Assert.assertEquals(1, fooDao.selectMany(f4).size());
+
             System.out.println("test select. Query records with age > 22");
             Foo f1 = new Foo();
             f1.gt("age", 22);
