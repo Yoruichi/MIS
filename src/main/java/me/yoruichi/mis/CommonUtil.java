@@ -1,5 +1,7 @@
 package me.yoruichi.mis;
 
+import com.cmcm.finance.common.enums.EnumTrait;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,6 +27,14 @@ public class CommonUtil {
                 }
                 return res;
             }
+
+            if (clazzArray[j].equals(EnumTrait.class)) {
+                Object[] res = new Object[v.length];
+                for (int i = 0; i < v.length; i++) {
+                    res[i] = ((EnumTrait) v[i]).getCode();
+                }
+                return res;
+            }
         }
         return v;
     }
@@ -40,19 +50,24 @@ public class CommonUtil {
             if (clazzArray[j].equals(GenericType.class)) {
                 return ((GenericType) v).getCode();
             }
+
+            if (clazzArray[j].equals(EnumTrait.class)) {
+                return ((EnumTrait) v).getCode();
+            }
+
         }
         return v;
     }
 
-    public static <T, R> R[] getFieldValueByAlias(Alias a, Field f, T[] v) throws InvocationTargetException, IllegalAccessException {
+    public static <T> Object[] getFieldValueByAlias(Alias a, Field f, T[] v) throws InvocationTargetException, IllegalAccessException {
         Method[] methods = f.getType().getMethods();
         for (int i = 0; i < methods.length; i++) {
             if (methods[i].getName().equalsIgnoreCase(a.name())) {
                 Object[] res = new Object[v.length];
                 for (int j = 0; j < v.length; j++) {
-                    res[j] = (R) methods[i].invoke(v[i], new Object[] {});
+                    res[j] = methods[i].invoke(v[j], new Object[] {});
                 }
-                return (R[]) res;
+                return res;
             }
         }
         throw new RuntimeException("No method of name " + a.name());
@@ -77,6 +92,15 @@ public class CommonUtil {
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
             if (clazzArray[j].equals(GenericType.class)) {
+                Method[] methods = f.getType().getMethods();
+                for (int i = 0; i < methods.length; i++) {
+                    if (methods[i].getName().equalsIgnoreCase("codeOf")) {
+                        return methods[i].invoke(null, new Object[] { v });
+                    }
+                }
+            }
+
+            if (clazzArray[j].equals(EnumTrait.class)) {
                 Method[] methods = f.getType().getMethods();
                 for (int i = 0; i < methods.length; i++) {
                     if (methods[i].getName().equalsIgnoreCase("codeOf")) {
