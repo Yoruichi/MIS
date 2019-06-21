@@ -16,6 +16,28 @@
 ### Generator
    点击[这里](/mis-generator-0.0.1-bundle.tar.gz) 
 
+    下载解压后`cd Mis-Generator`
+    `./bin/Mis-Generator <options>`
+    ```
+    usage :
+     -d  driver name (only mysql jdbc driver[com.mysql.jdbc.Driver] now)
+     -h  mysql host default 0.0.0.0
+     -P  mysql port default 3306
+     -url  db connection url with parameters
+     -u  mysql user name
+     -p  password
+     -b  db name
+     -t  table name(s) split with ','
+     -template  template file path default current path template
+     -target  target file path default current gen-java
+     -encode  default UTF-8
+     -n  application name
+     -a  package name
+     --desc project description
+    ```
+    例子
+    `./bin/Mis-Generator -h 52.76.255.205 -P 3980 -u exchange -p xxxxxx -b exchange -t account,transaction_user,transaction,account_type_info -a com.superatomfin.hela -n hela --desc transaction_service`
+
 ## Model类使用
    
    1. 继承自`BasePo`类。方法
