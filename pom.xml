@@ -6,7 +6,7 @@
 
     <groupId>me.yoruichi</groupId>
     <artifactId>mis</artifactId>
-    <version>0.0.16</version>
+    <version>0.0.17-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>MIS</name>
@@ -26,16 +26,22 @@
 
     <dependencies>
 
-        <!--<dependency>-->
-            <!--<groupId>com.cmcm.finance</groupId>-->
-            <!--<artifactId>ccc-api</artifactId>-->
-            <!--<version>1.0.7-SNAPSHOT</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>com.cmcm.finance</groupId>
+            <artifactId>finance-common</artifactId>
+            <version>RELEASE</version>
+        </dependency>
 
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.vaadin.external.google</groupId>
+                    <artifactId>android-json</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
 
         <dependency>
@@ -65,7 +71,6 @@
         <dependency>
             <groupId>com.zaxxer</groupId>
             <artifactId>HikariCP</artifactId>
-            <!--<scope>test</scope>-->
             <exclusions>
                 <exclusion>
                     <groupId>org.slf4j</groupId>
@@ -73,12 +78,12 @@
                 </exclusion>
             </exclusions>
         </dependency>
-        <!--<dependency>-->
-            <!--<groupId>io.springfox</groupId>-->
-            <!--<artifactId>springfox-swagger-common</artifactId>-->
-            <!--<scope>compile</scope>-->
-            <!--<version>2.5.0</version>-->
-        <!--</dependency>-->
+
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>RELEASE</version>
+        </dependency>
     </dependencies>
 
     <build>

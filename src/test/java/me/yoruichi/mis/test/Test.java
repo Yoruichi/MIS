@@ -1,8 +1,10 @@
 package me.yoruichi.mis.test;
 
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
+import me.yoruichi.mis.po.Ext;
 import me.yoruichi.mis.po.Foo;
 import me.yoruichi.mis.po.Gender;
 import org.junit.Assert;
@@ -41,6 +43,20 @@ public class Test {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @Rollback
+    @org.junit.Test
+    public void testJson() throws Exception {
+        Foo foo = new Foo();
+        fooDao.getTemplate().update("delete from foo");
+        Ext ext = new Ext();
+        ext.setAaa(0.01);
+        foo.setName("testA").setAge(20).setExt(ext).setcTime(LocalDateTime.now());
+        fooDao.insertOne(foo);
+        List<Foo> list = fooDao.selectMany(new Foo().setAge(20));
+        double a = list.get(0).getExt().getAaa();
+        Assert.assertEquals(a, 0.01, 0);
     }
 
     @Rollback

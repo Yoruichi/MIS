@@ -2,6 +2,10 @@ package me.yoruichi.mis;
 
 //import com.cmcm.finance.common.enums.EnumTrait;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.cmcm.finance.common.enums.EnumTrait;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -17,9 +21,23 @@ public class CommonUtil {
         if (a != null) {
             return CommonUtil.getFieldValueByAlias(a, f, v);
         }
-
+        AsJson aj = f.getAnnotation(AsJson.class);
+        if (aj != null) {
+            Object[] res = new Object[v.length];
+            for (int i = 0; i < v.length; i++) {
+                res[i] = JSON.toJSONString(v);
+            }
+            return res;
+        }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
+            if (f.getType().equals(JSONObject.class)) {
+                Object[] res = new Object[v.length];
+                for (int i = 0; i < v.length; i++) {
+                    res[i] = JSON.toJSONString(v);
+                }
+                return res;
+            }
             if (clazzArray[j].equals(GenericType.class)) {
                 Object[] res = new Object[v.length];
                 for (int i = 0; i < v.length; i++) {
@@ -28,33 +46,38 @@ public class CommonUtil {
                 return res;
             }
 
-//            if (clazzArray[j].equals(EnumTrait.class)) {
-//                Object[] res = new Object[v.length];
-//                for (int i = 0; i < v.length; i++) {
-//                    res[i] = ((EnumTrait) v[i]).getCode();
-//                }
-//                return res;
-//            }
+            if (clazzArray[j].equals(EnumTrait.class)) {
+                Object[] res = new Object[v.length];
+                for (int i = 0; i < v.length; i++) {
+                    res[i] = ((EnumTrait) v[i]).getCode();
+                }
+                return res;
+            }
         }
         return v;
     }
 
     public static Object getFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException {
+        AsJson aj = f.getAnnotation(AsJson.class);
+        if (aj != null) {
+            return JSON.toJSONString(v);
+        }
         Alias a = f.getAnnotation(Alias.class);
         if (a != null) {
             return CommonUtil.getFieldValueByAlias(a, f, v);
         }
-
+        if (f.getType().equals(JSONObject.class)) {
+            return JSON.toJSONString(v);
+        }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
             if (clazzArray[j].equals(GenericType.class)) {
                 return ((GenericType) v).getCode();
             }
 
-//            if (clazzArray[j].equals(EnumTrait.class)) {
-//                return ((EnumTrait) v).getCode();
-//            }
-
+            if (clazzArray[j].equals(EnumTrait.class)) {
+                return ((EnumTrait) v).getCode();
+            }
         }
         return v;
     }
@@ -84,11 +107,17 @@ public class CommonUtil {
     }
 
     public static Object setFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException {
+        AsJson aj = f.getAnnotation(AsJson.class);
+        if (aj != null && v instanceof String) {
+            return JSON.parseObject((String) v, f.getType());
+        }
         Alias a = f.getAnnotation(Alias.class);
         if (a != null) {
             return CommonUtil.setFieldValueByAlias(a, f, v);
         }
-
+        if (f.getType().equals(JSONObject.class) && v instanceof String) {
+            return JSON.parseObject((String) v);
+        }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
             if (clazzArray[j].equals(GenericType.class)) {
@@ -100,14 +129,14 @@ public class CommonUtil {
                 }
             }
 
-//            if (clazzArray[j].equals(EnumTrait.class)) {
-//                Method[] methods = f.getType().getMethods();
-//                for (int i = 0; i < methods.length; i++) {
-//                    if (methods[i].getName().equalsIgnoreCase("codeOf")) {
-//                        return methods[i].invoke(null, new Object[] { v });
-//                    }
-//                }
-//            }
+            if (clazzArray[j].equals(EnumTrait.class)) {
+                Method[] methods = f.getType().getMethods();
+                for (int i = 0; i < methods.length; i++) {
+                    if (methods[i].getName().equalsIgnoreCase("codeOf")) {
+                        return methods[i].invoke(null, new Object[] { v });
+                    }
+                }
+            }
         }
         return v;
     }

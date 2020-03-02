@@ -350,7 +350,7 @@ public abstract class BaseDao<T extends BasePo> {
                         t = op.get();
                         log.debug("Get result {} from cache with key {}", t, sed);
                     } else {
-                        log.warn("Warn! Get NULL result from cache with key {}", sed);
+                        log.info("Warn! Get NULL result from cache with key {}", sed);
                     }
                 } catch (ExecutionException e) {
                     log.warn("Warn! Get result from cache with key {}, Caused by:", sed, e);
