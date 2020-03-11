@@ -411,6 +411,9 @@ public class BasePo implements Serializable {
         Class<? extends BasePo> clazz = this.getClass();
         Field[] fs = clazz.getDeclaredFields();
         for (int i = 0; i < fs.length; i++) {
+            if (fs[i].isAnnotationPresent(Exclude.class)) {
+                continue;
+            }
             fs[i].setAccessible(true);
             Object v = fs[i].get(this);
             if (v != null) {
