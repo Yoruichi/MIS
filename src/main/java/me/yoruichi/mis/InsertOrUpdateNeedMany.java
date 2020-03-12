@@ -26,13 +26,7 @@ public class InsertOrUpdateNeedMany {
         List<Field> inc = Lists.newLinkedList();
         Class<? extends BasePo> clazz = os.get(0).getClass();
         Field[] fs = clazz.getDeclaredFields();
-        for (int i = 0; i < fs.length; i++) {
-            fs[i].setAccessible(true);
-            Object v = fs[i].get(os.get(0));
-            if (v != null) {
-                inc.add(fs[i]);
-            }
-        }
+        InsertManyNeed.processInc(os, inc, fs);
         if (inc.size() == 0) {
             throw new Exception("Object has no valid value,please check.");
         }

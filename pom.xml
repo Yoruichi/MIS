@@ -84,6 +84,14 @@
             <artifactId>fastjson</artifactId>
             <version>RELEASE</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/io.vavr/vavr -->
+        <dependency>
+            <groupId>io.vavr</groupId>
+            <artifactId>vavr</artifactId>
+            <version>0.10.2</version>
+        </dependency>
+
+
     </dependencies>
 
     <build>
@@ -94,6 +102,16 @@
             <!--</plugin>-->
         </plugins>
     </build>
+    <distributionManagement>
+        <repository>
+            <id>finance-releases</id>
+            <url>http://10.60.80.74:8081/nexus/content/repositories/financerel/</url>
+        </repository>
+        <snapshotRepository>
+            <id>finance-snapshots</id>
+            <url>http://10.60.80.74:8081/nexus/content/repositories/financesnapshot/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 
 </project>

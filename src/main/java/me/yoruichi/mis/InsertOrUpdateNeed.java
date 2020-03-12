@@ -28,6 +28,9 @@ public class InsertOrUpdateNeed {
         List<Object> obs = Lists.newLinkedList();
         List<Object> obss = Lists.newLinkedList();
         for (int i = 0; i < fs.length; i++) {
+            if (fs[i].isAnnotationPresent(Exclude.class)) {
+                continue;
+            }
             fs[i].setAccessible(true);
             Object v = fs[i].get(o);
             if (v != null) {

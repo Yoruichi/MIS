@@ -112,6 +112,9 @@ public abstract class BaseDao<T extends BasePo> {
                 T i = clazz.newInstance();
                 Field[] fields = clazz.getDeclaredFields();
                 for (int j = 0; j < fields.length; j++) {
+                    if (fields[j].isAnnotationPresent(Exclude.class)) {
+                        continue;
+                    }
                     int columnIndex =
                             rs.findColumn(SqlBuilder.getDbName(fields[j].getName()));
                     if (columnIndex > -1) {

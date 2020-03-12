@@ -3,6 +3,7 @@ package me.yoruichi.mis;
 import com.google.common.collect.Lists;
 
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -27,6 +28,9 @@ public class InsertOneNeed {
         List<Field> inc = Lists.newLinkedList();
         List<Object> obs = Lists.newLinkedList();
         for (int i = 0; i < fs.length; i++) {
+            if (fs[i].isAnnotationPresent(Exclude.class)) {
+                continue;
+            }
             fs[i].setAccessible(true);
             Object v = fs[i].get(o);
             if (v != null) {

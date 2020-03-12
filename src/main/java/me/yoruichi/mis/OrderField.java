@@ -4,22 +4,22 @@ package me.yoruichi.mis;
  * Created by yoruichi on 17/9/13.
  */
 public class OrderField {
-    private String fieldNname;
+    private String fieldName;
     private boolean asc;
 
     public OrderField(){}
 
     public OrderField(String fieldNname, boolean asc) {
-        this.fieldNname = fieldNname;
+        this.fieldName = fieldNname;
         this.asc = asc;
     }
 
-    public String getFieldNname() {
-        return fieldNname;
+    public String getFieldName() {
+        return fieldName;
     }
 
-    public OrderField setFieldNname(String fieldNname) {
-        this.fieldNname = fieldNname;
+    public OrderField setFieldName(String fieldName) {
+        this.fieldName = fieldName;
         return this;
     }
 

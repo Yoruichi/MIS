@@ -1,11 +1,14 @@
 package me.yoruichi.mis;
 
 import com.google.common.collect.Lists;
+import io.vavr.CheckedFunction0;
+import io.vavr.control.Try;
 
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author yoruichi
@@ -37,10 +40,8 @@ public class SelectNeed {
         }
         Class<? extends BasePo> clazz = o.getClass();
         Field[] fs = clazz.getDeclaredFields();
-        String[] includeFields = new String[fs.length];
-        for (int i = 0; i < fs.length; i++) {
-            includeFields[i] = fs[i].getName();
-        }
+        String[] includeFields =
+                Arrays.stream(fs).filter(field -> !field.isAnnotationPresent(Exclude.class)).map(field -> field.getName()).toArray(String[]::new);
         return getSelectOneNeed(o, includeFields, o.isForUpdate());
     }
 
@@ -107,21 +108,16 @@ public class SelectNeed {
         }
         Class<? extends BasePo> clazz = o.getClass();
         Field[] fs = clazz.getDeclaredFields();
-        String[] includeFields = new String[fs.length];
-        for (int i = 0; i < fs.length; i++) {
-            includeFields[i] = fs[i].getName();
-        }
+        String[] includeFields =
+                Arrays.stream(fs).filter(field -> !field.isAnnotationPresent(Exclude.class)).map(field -> field.getName()).toArray(String[]::new);
         return getSelectManyNeed(o, includeFields, o.getOrderByField(), o.isAsc(), o.getLimit(), o.getIndex(), o.isForUpdate());
     }
 
-    private static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields,
-            Collection<OrderField> orderByFields,
-            boolean asc, int limit, int index, boolean isForUpdate) throws Exception {
+    private static SelectNeed getSelectManyNeed(BasePo o, String[] includeFields, Collection<OrderField> orderByFields, boolean asc, int limit, int index,
+            boolean isForUpdate) throws Exception {
         Class<? extends BasePo> clazz = o.getClass();
-        List<Field> inc = Lists.newLinkedList();
-        for (String includeField : includeFields) {
-            inc.add(clazz.getDeclaredField(includeField));
-        }
+        List<Field> inc = Arrays.stream(includeFields).map(s -> Try.of(() -> clazz.getDeclaredField(s)).get())
+                .filter(field -> !field.isAnnotationPresent(Exclude.class)).collect(Collectors.toList());
         if (inc.size() == 0) {
             throw new Exception("Object has no valid value,please check.");
         }

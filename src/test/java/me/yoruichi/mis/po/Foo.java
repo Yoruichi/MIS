@@ -1,8 +1,8 @@
 package me.yoruichi.mis.po;
 
-import com.alibaba.fastjson.JSONObject;
 import me.yoruichi.mis.AsJson;
 import me.yoruichi.mis.BasePo;
+import me.yoruichi.mis.Exclude;
 
 import java.time.LocalDateTime;
 
@@ -18,6 +18,8 @@ public class Foo extends BasePo {
     @AsJson
     private Ext ext;
     private LocalDateTime cTime;
+    @Exclude
+    private Integer exclude;
 
     @Override
     public String toString() {

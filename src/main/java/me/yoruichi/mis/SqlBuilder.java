@@ -163,7 +163,7 @@ public class SqlBuilder {
         if (orderFields != null && orderFields.size() > 0) {
             sb.append(" order by `");
             for (OrderField orderField : orderFields) {
-                sb.append(getDbName(orderField.getFieldNname())).append("` ").append(orderField.isAsc() ? " asc" : " desc").append(",");
+                sb.append(getDbName(orderField.getFieldName())).append("` ").append(orderField.isAsc() ? " asc" : " desc").append(",");
             }
             sb.replace(sb.length() - 1, sb.length(), " ");
         }
