@@ -27,12 +27,6 @@
     <dependencies>
 
         <dependency>
-            <groupId>com.cmcm.finance</groupId>
-            <artifactId>finance-common</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
