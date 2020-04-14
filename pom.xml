@@ -6,7 +6,7 @@
 
     <groupId>me.yoruichi</groupId>
     <artifactId>mis</artifactId>
-    <version>0.0.17-SNAPSHOT</version>
+    <version>0.0.18</version>
     <packaging>jar</packaging>
 
     <name>MIS</name>
