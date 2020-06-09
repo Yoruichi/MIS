@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS `test`.`foo` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
-  `gender` tinyint(4) NOT NULL DEFAULT 1 COMMENT 'gender',
+  `gender` enum('F','M') NOT NULL DEFAULT 'F' COMMENT 'gender',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
   `email` varchar(64) NOT NULL DEFAULT '' COMMENT 'email',
   `age` int(3) DEFAULT NULL COMMENT 'age',

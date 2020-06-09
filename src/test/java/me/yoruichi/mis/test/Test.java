@@ -85,6 +85,9 @@ public class Test {
             Foo f = new Foo();
             f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
+//TODO
+            List<Foo> l = fooDao.selectMany(new Foo().orderBy("age", false).orderBy("cTime", true));
+            System.out.println(l);
 
             System.out.println("test select. Query records with Gender in {M}");
             Foo f4 = new Foo();

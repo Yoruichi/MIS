@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class FooDao extends BaseDao<Foo> {
     @Autowired
-    @Qualifier("secondaryJdbcTemplate")
+//    @Qualifier("secondaryJdbcTemplate")
     private JdbcTemplate jdbcTemplate;
 
     //    @Override
