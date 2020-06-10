@@ -17,6 +17,7 @@ public class Foo extends BasePo {
     @Alias(name = "getName", decode = "nameOf")
     private Gender gender;
     private String email;
+    private Integer myColumn;
     @AsJson
     private Ext ext;
     private LocalDateTime cTime;
@@ -95,5 +96,13 @@ public class Foo extends BasePo {
     public Foo setExt(Ext ext) {
         this.ext = ext;
         return this;
+    }
+
+    public Integer getMyColumn() {
+        return myColumn;
+    }
+
+    public void setMyColumn(Integer myColumn) {
+        this.myColumn = myColumn;
     }
 }

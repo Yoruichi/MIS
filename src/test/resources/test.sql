@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS `test`.`foo` (
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
   `email` varchar(64) NOT NULL DEFAULT '' COMMENT 'email',
   `age` int(3) DEFAULT NULL COMMENT 'age',
+  `my_column` tinyint(4) NOT NULL DEFAULT 1 COMMENT '测试字段',
   `ext` varchar (4000) DEFAULT NULL COMMENT 'json 扩展',
   `c_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`))
@@ -15,6 +16,7 @@ CREATE TABLE IF NOT EXISTS `test2`.`foo` (
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT '名称',
   `email` varchar(64) NOT NULL DEFAULT '' COMMENT 'email',
   `age` int(3) DEFAULT NULL COMMENT 'age',
+  `my_column` tinyint(4) NOT NULL DEFAULT 1 COMMENT '测试字段',
   `ext` varchar (4000) DEFAULT NULL COMMENT 'json 扩展',
   `c_time` timestamp NULL DEFAULT NULL,
   PRIMARY KEY (`id`))

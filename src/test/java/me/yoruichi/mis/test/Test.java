@@ -1,6 +1,5 @@
 package me.yoruichi.mis.test;
 
-import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import me.yoruichi.mis.Application;
 import me.yoruichi.mis.dao.FooDao;
@@ -85,8 +84,8 @@ public class Test {
             Foo f = new Foo();
             f.in("name", new String[] {"testA", "testB"});
             Assert.assertEquals(3, fooDao.selectMany(f).size());
-//TODO
-            List<Foo> l = fooDao.selectMany(new Foo().orderBy("age", false).orderBy("cTime", true));
+            //test order by
+            List<Foo> l = fooDao.selectMany(new Foo().orderBy("age", false).orderBy("cTime", true).setLimit(10));
             System.out.println(l);
 
             System.out.println("test select. Query records with Gender in {M}");

@@ -1,7 +1,8 @@
 package me.yoruichi.mis;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -13,7 +14,9 @@ import java.lang.reflect.Method;
  */
 public class CommonUtil {
 
-    public static Object[] getFieldValue(Field f, Object[] v) throws InvocationTargetException, IllegalAccessException {
+    private static final ObjectMapper om = new ObjectMapper().findAndRegisterModules();
+
+    public static Object[] getFieldValue(Field f, Object[] v) throws InvocationTargetException, IllegalAccessException, JsonProcessingException {
         Alias a = f.getAnnotation(Alias.class);
         if (a != null) {
             return CommonUtil.getFieldValueByAlias(a, f, v);
@@ -22,16 +25,16 @@ public class CommonUtil {
         if (aj != null) {
             Object[] res = new Object[v.length];
             for (int i = 0; i < v.length; i++) {
-                res[i] = JSON.toJSONString(v);
+                res[i] = om.writerWithDefaultPrettyPrinter().writeValueAsString(v);
             }
             return res;
         }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
-            if (f.getType().equals(JSONObject.class)) {
+            if (f.getType().equals(JsonNode.class)) {
                 Object[] res = new Object[v.length];
                 for (int i = 0; i < v.length; i++) {
-                    res[i] = JSON.toJSONString(v);
+                    res[i] = om.writerWithDefaultPrettyPrinter().writeValueAsString(v);
                 }
                 return res;
             }
@@ -39,17 +42,17 @@ public class CommonUtil {
         return v;
     }
 
-    public static Object getFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException {
+    public static Object getFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException, JsonProcessingException {
         AsJson aj = f.getAnnotation(AsJson.class);
         if (aj != null) {
-            return JSON.toJSONString(v);
+            return om.writerWithDefaultPrettyPrinter().writeValueAsString(v);
         }
         Alias a = f.getAnnotation(Alias.class);
         if (a != null) {
             return CommonUtil.getFieldValueByAlias(a, f, v);
         }
-        if (f.getType().equals(JSONObject.class)) {
-            return JSON.toJSONString(v);
+        if (f.getType().equals(JsonNode.class)) {
+            return om.writerWithDefaultPrettyPrinter().writeValueAsString(v);
         }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {
@@ -85,17 +88,17 @@ public class CommonUtil {
         throw new RuntimeException("No method of name " + a.name());
     }
 
-    public static Object setFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException {
+    public static Object setFieldValue(Field f, Object v) throws InvocationTargetException, IllegalAccessException, JsonProcessingException {
         AsJson aj = f.getAnnotation(AsJson.class);
         if (aj != null && v instanceof String) {
-            return JSON.parseObject((String) v, f.getType());
+            return om.readValue((String) v, f.getType());
         }
         Alias a = f.getAnnotation(Alias.class);
         if (a != null) {
             return CommonUtil.setFieldValueByAlias(a, f, v);
         }
-        if (f.getType().equals(JSONObject.class) && v instanceof String) {
-            return JSON.parseObject((String) v);
+        if (f.getType().equals(JsonNode.class) && v instanceof String) {
+            return om.readTree((String) v);
         }
         Class<?>[] clazzArray = f.getType().getInterfaces();
         for (int j = 0; j < clazzArray.length; j++) {

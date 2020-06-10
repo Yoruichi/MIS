@@ -2,6 +2,7 @@ package me.yoruichi.mis;
 
 //import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -20,17 +21,20 @@ import java.util.stream.Collectors;
  */
 public class BasePo implements Serializable {
 
-    //    @JsonIgnoreProperties(value = {
-    //            "conditionFieldList",
-    //            "orderByField",
-    //            "asc",
-    //            "limit",
-    //            "index",
-    //            "forUpdate",
-    //            "orConditionList",
-    //            "updateFieldMap",
-    //            "useCache",
-    //    })
+    public static boolean ASC = true;
+    public static boolean DESC = false;
+
+    @JsonIgnoreProperties(value = {
+            "conditionFieldList",
+            "orderByField",
+            "asc",
+            "limit",
+            "index",
+            "forUpdate",
+            "orConditionList",
+            "updateFieldMap",
+            "useCache",
+    })
 
     //    @ApiModelProperty(hidden = true)
     private Map<String, ConditionField> conditionFieldMap = Maps.newLinkedHashMap();
@@ -342,6 +346,14 @@ public class BasePo implements Serializable {
         return (T) this;
     }
 
+    public <T extends BasePo> T limit(int limit) {
+        return setLimit(limit);
+    }
+
+    public <T extends BasePo> T limit(int index, int limit) {
+        return setIndex(index).setLimit(limit);
+    }
+
     public int getIndex() {
         return index;
     }
@@ -349,6 +361,10 @@ public class BasePo implements Serializable {
     public <T extends BasePo> T setIndex(int index) {
         this.index = index;
         return (T) this;
+    }
+
+    public <T extends BasePo> T index(int index) {
+        return setIndex(index);
     }
 
     public boolean isAsc() {
